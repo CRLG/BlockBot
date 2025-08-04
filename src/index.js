@@ -8,6 +8,7 @@ import * as Blockly from 'blockly';
 import {blocks} from './blocks/text';
 import {cGenerator} from './generators/c';
 import {save, load} from './serialization';
+import {downloadWorkspace, uploadWorkspace} from './save_ws';
 import {toolbox} from './toolbox';
 import './index.css';
 
@@ -18,6 +19,10 @@ Blockly.common.defineBlocks(blocks);
 const codeDiv = document.getElementById('generatedCode').firstChild;
 const outputDiv = document.getElementById('output');
 const blocklyDiv = document.getElementById('blocklyDiv');
+const buttonsDiv = document.getElementById('buttons');
+const saveButton = document.getElementById('saveButton');
+const loadButton = document.getElementById('loadButton');
+const savedFile =document.getElementById('fileInput');
 const ws = Blockly.inject(blocklyDiv, {toolbox});
 
 // This function resets the code and output divs, shows the
@@ -35,6 +40,15 @@ const runCode = () => {
 // Load the initial state from storage and run the code.
 load(ws);
 runCode();
+
+saveButton.addEventListener('click', () => {
+  downloadWorkspace(ws);
+});
+
+loadButton.addEventListener('click', () => {
+	const fic=savedFile.files[0];
+  uploadWorkspace(ws,fic);
+});
 
 // Every time the workspace changes state, save the changes to storage.
 ws.addChangeListener((e) => {
