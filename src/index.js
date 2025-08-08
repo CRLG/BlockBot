@@ -6,7 +6,8 @@
 
 import * as Blockly from 'blockly';
 import {blocks} from './blocks/text';
-import {cGenerator} from './generators/c';
+import {stm32Generator} from './generators/stm32';
+import {arduinoGenerator} from './generators/arduino';
 import {save, load} from './serialization';
 import {downloadWorkspace, uploadWorkspace} from './save_ws';
 import {toolbox} from './toolbox';
@@ -25,12 +26,24 @@ const loadButton = document.getElementById('loadButton');
 const savedFile =document.getElementById('fileInput');
 const ws = Blockly.inject(blocklyDiv, {toolbox});
 
+const GeneratorType = {
+  ARDUINO_GENERATOR: 'ARDUINO_GENERATOR',
+  STM32_GENERATOR: 'STM32_GENERATOR'
+};
+const generator_type = GeneratorType.STM32_GENERATOR;
+
 // This function resets the code and output divs, shows the
 // generated code from the workspace, and evals the code.
 // In a real application, you probably shouldn't use `eval`.
 const runCode = () => {
-  const code = cGenerator.workspaceToCode(ws);
-  codeDiv.innerText = code;
+  if (generator_type === GeneratorType.STM32_GENERATOR) {
+      const code = stm32Generator.workspaceToCode(ws);
+      codeDiv.innerText = code;
+  }
+  else {
+      const code = arduinoGenerator.workspaceToCode(ws);
+      codeDiv.innerText = code;
+  }
 
   //outputDiv.innerHTML = '';
 

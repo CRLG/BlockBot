@@ -6,21 +6,21 @@
 
 import * as Blockly from 'blockly';
 
-export const cGenerator = new Blockly.CodeGenerator('C');
+export const stm32Generator = new Blockly.CodeGenerator('STM32');
 
 
-cGenerator.forBlock['controls_if'] = function(block, generator) {
+stm32Generator.forBlock['controls_if'] = function(block, generator) {
   // TODO : faire ce qu'il faut
   return 'my code string for controls_if';
 };
 
 
-cGenerator.forBlock['logic_compare'] = function(block, generator) {
+stm32Generator.forBlock['logic_compare'] = function(block, generator) {
   // TODO : faire ce qu'il faut
   return 'my code string for logic_compare';
 };
 
-cGenerator.forBlock['variables_set'] = function(block, generator) {
+stm32Generator.forBlock['variables_set'] = function(block, generator) {
   // TODO : faire ce qu'il faut
   return 'unsigned int Toto=0;';
 };
