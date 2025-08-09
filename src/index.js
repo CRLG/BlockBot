@@ -30,7 +30,8 @@ const GeneratorType = {
   ARDUINO_GENERATOR: 'ARDUINO_GENERATOR',
   STM32_GENERATOR: 'STM32_GENERATOR'
 };
-const generator_type = GeneratorType.STM32_GENERATOR;
+var generator_type = GeneratorType.STM32_GENERATOR;
+
 
 // This function resets the code and output divs, shows the
 // generated code from the workspace, and evals the code.
@@ -62,6 +63,19 @@ loadButton.addEventListener('click', () => {
 	const fic=savedFile.files[0];
   uploadWorkspace(ws,fic);
 });
+
+// --------------------------------------------------
+// Choix du générateur de code par les boutons dédiés
+stm32generator.addEventListener('click', () => {
+    generator_type = GeneratorType.STM32_GENERATOR
+    runCode();  // met à jour le code généré avec la nouvelle cible
+});
+
+arduinogenerator.addEventListener('click', () => {
+    generator_type = GeneratorType.ARDUINO_GENERATOR
+    runCode();  // met à jour le code généré avec la nouvelle cible
+});
+
 
 // Every time the workspace changes state, save the changes to storage.
 ws.addChangeListener((e) => {
