@@ -16,6 +16,9 @@ import './index.css';
 // Register the blocks and generator with Blockly
 Blockly.common.defineBlocks(blocks);
 
+// Autorise l'ajout de commentaires par clic droit sur la page
+Blockly.ContextMenuItems.registerCommentOptions();
+
 // Set up UI elements and inject Blockly
 const codeDiv = document.getElementById('generatedCode').firstChild;
 const outputDiv = document.getElementById('output');
