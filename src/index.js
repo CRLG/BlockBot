@@ -27,8 +27,24 @@ const buttonsDiv = document.getElementById('buttons');
 const saveButton = document.getElementById('saveButton');
 const loadButton = document.getElementById('loadButton');
 const savedFile =document.getElementById('fileInput');
-const ws = Blockly.inject(blocklyDiv, {toolbox});
-
+const ws = Blockly.inject(blocklyDiv, 
+        {toolbox,
+            grid:				// Affiche la grille
+                {spacing: 20,
+                length: 3,
+                colour: '#ccc',
+                snap: true},        
+            zoom:               // Affiche les boutons du zoom et le bouton de recentrage
+                {controls: true,
+                wheel: true,
+                startScale: 1.0,
+                maxScale: 3,
+                minScale: 0.3,
+                scaleSpeed: 1.2,
+                pinch: true},
+            trashcan: true      // Active la pouvelle
+        });
+        
 const GeneratorType = {
   ARDUINO_GENERATOR: 'ARDUINO_GENERATOR',
   STM32_GENERATOR: 'STM32_GENERATOR'
