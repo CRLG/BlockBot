@@ -95,7 +95,15 @@ arduinogenerator.addEventListener('click', () => {
     runCode();  // met à jour le code généré avec la nouvelle cible
 });
 
+// --------------------------------------------------
+// Callback du bouton "Export"
+// Exporte le code généré dans un fichier
+exportgenerated.addEventListener('click', () => {
+    saveTextFile("FichierCodeExport.cpp", codeDiv.innerText); // TODO : mettre le bon nom du fichier de sortie
+});
 
+
+// --------------------------------------------------
 // Every time the workspace changes state, save the changes to storage.
 ws.addChangeListener((e) => {
   // UI events are things like scrolling, zooming, etc.
@@ -118,3 +126,29 @@ ws.addChangeListener((e) => {
   }
   runCode();
 });
+
+
+// --------------------------------------------------
+// Sauvegarde du code généré dans un fichier texte
+// --------------------------------------------------
+////////////////////////////////////////////////////
+/**
+ * writeTextFile write data to file on hard drive
+ * @param  string  filename   The name of the file to generate
+ * @param  sring   data     Data to be written
+ */
+function saveTextFile(filename, data) {
+    const blob = new Blob([data], {type: 'text/plain;charset=utf-8'});
+    if(window.navigator.msSaveOrOpenBlob) {
+        window.navigator.msSaveBlob(blob, filename);
+    }
+    else{
+        const elem = window.document.createElement('a');
+        elem.href = window.URL.createObjectURL(blob);
+        elem.download = filename;
+        document.body.appendChild(elem);
+        elem.click();
+        document.body.removeChild(elem);
+    }
+}
+
