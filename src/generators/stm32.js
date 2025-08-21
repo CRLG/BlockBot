@@ -312,7 +312,7 @@ stm32Generator.forBlock['controls_if'] = function(block, generator) {
   var n = 0;
   var argument = generator.valueToCode(this, 'IF' + n, Order.NONE) || 'false';
   var branch = generator.statementToCode(this, 'DO' + n);
-  var code = 'if (' + argument + ') {\n' + branch + '\n}';
+  var code = 'if (' + argument + ') {\n' + branch + '}';
   for (n = 1; n <= this.elseifCount_; n++) {
     argument = generator.valueToCode(this, 'IF' + n, Order.NONE) || 'false';
     branch = generator.statementToCode(this, 'DO' + n);
@@ -320,7 +320,7 @@ stm32Generator.forBlock['controls_if'] = function(block, generator) {
   }
   if (this.elseCount_) {
     branch = generator.statementToCode(this, 'ELSE');
-    code += ' else {\n' + branch + '\n}';
+    code += ' else {\n' + branch + '}';
   }
   return code + '\n';
 };
