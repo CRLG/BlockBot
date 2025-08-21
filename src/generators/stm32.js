@@ -328,10 +328,23 @@ stm32Generator.forBlock['controls_if'] = function(block, generator) {
 
 // _____________________________________________________________________
 stm32Generator.forBlock['logic_compare'] = function(block, generator) {
-  // TODO : faire ce qu'il faut
-  return 'my code string for logic_compare';
+    // Comparison operator.
+  var OPERATORS = {
+    'EQ': '==',
+    'NEQ': '!=',
+    'LT': '<',
+    'LTE': '<=',
+    'GT': '>',
+    'GTE': '>='
+  };
+  var operator = OPERATORS[block.getFieldValue('OP')];
+  var order = (operator == '==' || operator == '!=') ?
+      Order.EQUALITY : Order.RELATIONAL;
+  var argument0 = generator.valueToCode(block, 'A', order) || '0';
+  var argument1 = generator.valueToCode(block, 'B', order) || '0';
+  var code = argument0 + ' ' + operator + ' ' + argument1;
+  return [code, order];
 };
-
 
 // _____________________________________________________________________
 // Voir https://groups.google.com/g/blockly/c/JzVgbKEcyaw
