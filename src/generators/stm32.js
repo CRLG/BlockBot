@@ -380,6 +380,12 @@ stm32Generator.forBlock['logic_boolean'] = function(block, generator) {
 };
 
 // _____________________________________________________________________
+stm32Generator.forBlock['logic_null'] = function(block, generator) {
+  // Null data type.
+  return ['null', Order.ATOMIC];
+};
+
+// _____________________________________________________________________
 // Voir https://groups.google.com/g/blockly/c/JzVgbKEcyaw
 stm32Generator.forBlock['variables_set'] = function(block, generator) {
   // Variable setter.
