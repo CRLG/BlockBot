@@ -504,6 +504,21 @@ stm32Generator.forBlock['controls_repeat_ext'] = function(block, generator) {
 };
 
 // _____________________________________________________________________
+stm32Generator.forBlock['controls_whileUntil'] = function(block, generator) {
+  // Do while/until loop.
+  var until = block.getFieldValue('MODE') == 'UNTIL';
+  var argument0 = generator.valueToCode(block, 'BOOL',
+      until ? Order.LOGICAL_NOT :
+      Order.NONE) || 'false';
+  var branch = generator.statementToCode(block, 'DO');
+  branch = generator.addLoopTrap(branch, block);
+  if (until) {
+    argument0 = '!' + argument0;
+  }
+  return 'while (' + argument0 + ') {\n' + branch + '}\n';
+};
+
+// _____________________________________________________________________
 stm32Generator.forBlock['controls_flow_statements'] = function(block, generator) {
   switch (block.getFieldValue('FLOW')) {
     case 'BREAK':
