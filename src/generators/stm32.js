@@ -308,9 +308,21 @@ stm32Generator.forBlock['math_trig'] = stm32Generator.forBlock['math_single'];
 
 // _____________________________________________________________________
 stm32Generator.forBlock['controls_if'] = function(block, generator) {
-  // TODO : faire ce qu'il faut
-  console.log('HELLO');
-  return 'my code string for controls_if';
+  // If/elseif/else condition.
+  var n = 0;
+  var argument = generator.valueToCode(this, 'IF' + n, Order.NONE) || 'false';
+  var branch = generator.statementToCode(this, 'DO' + n);
+  var code = 'if (' + argument + ') {\n' + branch + '\n}';
+  for (n = 1; n <= this.elseifCount_; n++) {
+    argument = generator.valueToCode(this, 'IF' + n, Order.NONE) || 'false';
+    branch = generator.statementToCode(this, 'DO' + n);
+    code += ' else if (' + argument + ') {\n' + branch + '}';
+  }
+  if (this.elseCount_) {
+    branch = generator.statementToCode(this, 'ELSE');
+    code += ' else {\n' + branch + '\n}';
+  }
+  return code + '\n';
 };
 
 
