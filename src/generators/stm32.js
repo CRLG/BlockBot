@@ -373,6 +373,15 @@ stm32Generator.forBlock['logic_operation'] = function(block, generator) {
 };
 
 // _____________________________________________________________________
+stm32Generator.forBlock['logic_negate'] = function(block, generator) {
+  // Negation.
+  var order = Order.LOGICAL_NOT;
+  var argument0 = generator.valueToCode(block, 'BOOL', order) || 'true';
+  var code = '!' + argument0;
+  return [code, order];
+};
+
+// _____________________________________________________________________
 stm32Generator.forBlock['logic_boolean'] = function(block, generator) {
   // Boolean values true and false.
   var code = (block.getFieldValue('BOOL') == 'TRUE') ? 'true' : 'false';
