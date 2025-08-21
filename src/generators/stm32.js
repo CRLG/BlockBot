@@ -373,6 +373,13 @@ stm32Generator.forBlock['logic_operation'] = function(block, generator) {
 };
 
 // _____________________________________________________________________
+stm32Generator.forBlock['logic_boolean'] = function(block, generator) {
+  // Boolean values true and false.
+  var code = (block.getFieldValue('BOOL') == 'TRUE') ? 'true' : 'false';
+  return [code, Order.ATOMIC];
+};
+
+// _____________________________________________________________________
 // Voir https://groups.google.com/g/blockly/c/JzVgbKEcyaw
 stm32Generator.forBlock['variables_set'] = function(block, generator) {
   // Variable setter.
