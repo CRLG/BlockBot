@@ -219,6 +219,94 @@ stm32Generator.forBlock['math_constant'] = function(block, generator) {
 };
 
 // _____________________________________________________________________
+stm32Generator.forBlock['math_single'] = function(block, generator) {
+  // Math operators with single operand.
+  var operator = block.getFieldValue('OP');
+  var code;
+  var arg;
+  if (operator == 'NEG') {
+    // Negation is a special case given its different operator precedence.
+    arg = generator.valueToCode(block, 'NUM', Order.UNARY_PLUS) || '0';
+    if (arg[0] == '-') {
+      // --3 is not legal in C.
+      arg = ' ' + arg;
+    }
+    code = '-' + arg;
+    return [code, Order.UNARY_NEGATION];
+  }
+  if (operator == 'ABS' || operator.substring(0, 5) == 'ROUND') {
+    arg = generator.valueToCode(block, 'NUM',
+        Order.UNARY_PLUS) || '0';
+  } else if (operator == 'SIN' || operator == 'COS' || operator == 'TAN') {
+    arg = generator.valueToCode(block, 'NUM',
+        Order.MULTIPLICATION) || '0';
+  } else {
+    arg = generator.valueToCode(block, 'NUM',
+        Order.NONE) || '0';
+  }
+
+  switch (operator) {
+    case 'ABS':
+      code = 'fabs(' + arg + ')';
+      break;
+    case 'ROOT':
+      code = 'sqrt(' + arg + ')';
+      break;
+    case 'LN':
+      code = 'log(' + arg + ')';
+      break;
+    case 'EXP':
+      code = 'exp(' + arg + ')';
+      break;
+    case 'POW10':
+      code = 'pow(10,' + arg + ')';
+      break;
+    case 'ROUND':
+      code = 'round(' + arg + ')';
+      break;
+    case 'ROUNDUP':
+       code = 'ceil(' + arg + ')';
+      break;
+    case 'ROUNDDOWN':
+      code = 'floor(' + arg + ')';
+      break;
+    case 'SIN':
+      code = 'sin(' + arg + ')';
+      break;
+    case 'COS':
+      code = 'cos(' + arg + ')';
+      break;
+    case 'TAN':
+      code = 'tan(' + arg + ')';
+      break;
+    case 'LOG10':
+      code = 'Math.log(' + arg + ') / Math.log(10)';
+      break;
+    case 'ASIN':
+      code = 'asin(' + arg + ')';
+      break;
+    case 'ACOS':
+      code = 'acos(' + arg + ')';
+      break;
+    case 'ATAN':
+      code = 'atan(' + arg + ')';
+      break;
+    default:
+      throw Error('Unknown math operator: ' + operator);
+  }
+  return [code, Order.MULTIPLICATION];
+};
+
+// _____________________________________________________________________
+// Rounding functions have a single operand.
+stm32Generator.forBlock['math_round'] = stm32Generator.forBlock['math_single'];
+
+// _____________________________________________________________________
+// Trigonometry functions have a single operand.
+stm32Generator.forBlock['math_trig'] = stm32Generator.forBlock['math_single'];
+
+
+// _____________________________________________________________________
 stm32Generator.forBlock['controls_if'] = function(block, generator) {
   // TODO : faire ce qu'il faut
   console.log('HELLO');
