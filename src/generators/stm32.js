@@ -407,6 +407,74 @@ stm32Generator.forBlock['logic_ternary'] = function(block, generator) {
   return [code, Order.CONDITIONAL];
 };
 
+
+// _____________________________________________________________________
+
+stm32Generator.forBlock['controls_for'] = function(block, generator) {
+  // For loop.
+  var variable0 = generator.variableDB_.getName(block.getFieldValue('VAR'), Blockly.Names.NameType.VARIABLE);
+  var argument0 = stm32Generator.valueToCode(block, 'FROM',
+      Order.ASSIGNMENT) || '0';
+  var argument1 = stm32Generator.valueToCode(block, 'TO',
+      Order.ASSIGNMENT) || '0';
+  var increment = stm32Generator.valueToCode(block, 'BY',
+      Order.ASSIGNMENT) || '1';
+  var branch = stm32Generator.statementToCode(block, 'DO');
+  branch = stm32Generator.addLoopTrap(branch, block);
+  var code;
+  if (Blockly.utils.string.isNumber(argument0) && Blockly.utils.string.isNumber(argument1) &&
+      Blockly.utils.string.isNumber(increment)) {
+    // All arguments are simple numbers.
+    var up = Number(argument0) <= Number(argument1);
+    code = 'for (int ' + variable0 + ' = ' + argument0 + '; ' +
+        variable0 + (up ? ' <= ' : ' >= ') + argument1 + '; ' +
+        variable0;
+    var step = Math.abs(Number(increment));
+    if (step == 1) {
+      code += up ? '++' : '--';
+    } else {
+      code += (up ? ' += ' : ' -= ') + step;
+    }
+    code += ') {\n' + branch + '}\n';
+  } else {
+    code = '';
+    // Cache non-trivial values to variables to prevent repeated look-ups.
+    var startVar = argument0;
+    if (!argument0.match(/^\w+$/) && !Blockly.utils.string.isNumber(argument0)) {
+      var startVar = stm32Generator.variableDB_.getDistinctName(
+          variable0 + '_start', Blockly.Variables.NAME_TYPE);
+      code += 'var ' + startVar + ' = ' + argument0 + ';\n';
+    }
+    var endVar = argument1;
+    if (!argument1.match(/^\w+$/) && !Blockly.utils.string.isNumber(argument1)) {
+      var endVar = stm32Generator.variableDB_.getDistinctName(
+          variable0 + '_end', Blockly.Variables.NAME_TYPE);
+      code += 'var ' + endVar + ' = ' + argument1 + ';\n';
+    }
+    // Determine loop direction at start, in case one of the bounds
+    // changes during loop execution.
+    var incVar = stm32Generator.variableDB_.getDistinctName(
+        variable0 + '_inc', Blockly.Variables.NAME_TYPE);
+    code += 'num ' + incVar + ' = ';
+    if (Blockly.utils.string.isNumber(increment)) {
+      code += Math.abs(increment) + ';\n';
+    } else {
+      code += '(' + increment + ').abs();\n';
+    }
+    code += 'if (' + startVar + ' > ' + endVar + ') {\n';
+    code += stm32Generator.INDENT + incVar + ' = -' + incVar + ';\n';
+    code += '}\n';
+    code += 'for (' + variable0 + ' = ' + startVar + '; ' +
+        incVar + ' >= 0 ? ' +
+        variable0 + ' <= ' + endVar + ' : ' +
+        variable0 + ' >= ' + endVar + '; ' +
+        variable0 + ' += ' + incVar + ') {\n' +
+        branch + '}\n';
+  }
+  return code;
+}
+
+
 // _____________________________________________________________________
 // Voir https://groups.google.com/g/blockly/c/JzVgbKEcyaw
 stm32Generator.forBlock['variables_set'] = function(block, generator) {
