@@ -347,6 +347,32 @@ stm32Generator.forBlock['logic_compare'] = function(block, generator) {
 };
 
 // _____________________________________________________________________
+stm32Generator.forBlock['logic_operation'] = function(block, generator) {
+  // Operations 'and', 'or'.
+  var operator = (block.getFieldValue('OP') == 'AND') ? '&&' : '||';
+  var order = (operator == '&&') ? Order.LOGICAL_AND :
+      Order.LOGICAL_OR;
+  var argument0 = generator.valueToCode(block, 'A', order);
+  var argument1 = generator.valueToCode(block, 'B', order);
+  if (!argument0 && !argument1) {
+    // If there are no arguments, then the return value is false.
+    argument0 = 'false';
+    argument1 = 'false';
+  } else {
+    // Single missing arguments have no effect on the return value.
+    var defaultArgument = (operator == '&&') ? 'true' : 'false';
+    if (!argument0) {
+      argument0 = defaultArgument;
+    }
+    if (!argument1) {
+      argument1 = defaultArgument;
+    }
+  }
+  var code = argument0 + ' ' + operator + ' ' + argument1;
+  return [code, order];
+};
+
+// _____________________________________________________________________
 // Voir https://groups.google.com/g/blockly/c/JzVgbKEcyaw
 stm32Generator.forBlock['variables_set'] = function(block, generator) {
   // Variable setter.
