@@ -386,6 +386,19 @@ stm32Generator.forBlock['logic_null'] = function(block, generator) {
 };
 
 // _____________________________________________________________________
+stm32Generator.forBlock['logic_ternary'] = function(block, generator) {
+  // Ternary operator.
+  var value_if = generator.valueToCode(block, 'IF',
+      Order.CONDITIONAL) || 'false';
+  var value_then = generator.valueToCode(block, 'THEN',
+      Order.CONDITIONAL) || 'null';
+  var value_else = generator.valueToCode(block, 'ELSE',
+      Order.CONDITIONAL) || 'null';
+  var code = value_if + ' ? ' + value_then + ' : ' + value_else;
+  return [code, Order.CONDITIONAL];
+};
+
+// _____________________________________________________________________
 // Voir https://groups.google.com/g/blockly/c/JzVgbKEcyaw
 stm32Generator.forBlock['variables_set'] = function(block, generator) {
   // Variable setter.
