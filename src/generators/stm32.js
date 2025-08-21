@@ -203,6 +203,22 @@ stm32Generator.forBlock['math_arithmetic'] = function(block, generator) {
 };
 
 // _____________________________________________________________________
+stm32Generator.forBlock['math_constant'] = function(block, generator) {
+  // Constants: PI, E, the Golden Ratio, sqrt(2), 1/sqrt(2), INFINITY.
+  var CONSTANTS = {
+    'PI': ['M_PI', Order.ATOMIC],
+    'E': ['M_E', Order.ATOMIC],
+    'GOLDEN_RATIO': ['(1 + sqrt(5)) / 2', Order.MULTIPLICATION],
+    'SQRT2': ['M_SQRT2', Order.ATOMIC],
+    'SQRT1_2': ['M_SQRT1_2', Order.ATOMIC],
+    'INFINITY': ['INFINITY', Order.ATOMIC]
+  };
+  var constant = block.getFieldValue('CONSTANT');
+  generator.definitions_['import_dart_math'] = "#include \"math.h\"";
+  return CONSTANTS[constant];
+};
+
+// _____________________________________________________________________
 stm32Generator.forBlock['controls_if'] = function(block, generator) {
   // TODO : faire ce qu'il faut
   console.log('HELLO');
