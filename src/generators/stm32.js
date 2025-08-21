@@ -409,7 +409,6 @@ stm32Generator.forBlock['logic_ternary'] = function(block, generator) {
 
 
 // _____________________________________________________________________
-
 stm32Generator.forBlock['controls_for'] = function(block, generator) {
   // For loop.
   var variable0 = generator.variableDB_.getName(block.getFieldValue('VAR'), Blockly.Names.NameType.VARIABLE);
@@ -474,6 +473,17 @@ stm32Generator.forBlock['controls_for'] = function(block, generator) {
   return code;
 }
 
+
+// _____________________________________________________________________
+stm32Generator.forBlock['controls_flow_statements'] = function(block, generator) {
+  switch (block.getFieldValue('FLOW')) {
+    case 'BREAK':
+      return 'break;\n';
+    case 'CONTINUE':
+      return 'continue;\n';
+  }
+  throw Error('Unknown flow statement.');
+};
 
 // _____________________________________________________________________
 // Voir https://groups.google.com/g/blockly/c/JzVgbKEcyaw
