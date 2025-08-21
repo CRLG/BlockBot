@@ -412,14 +412,14 @@ stm32Generator.forBlock['logic_ternary'] = function(block, generator) {
 stm32Generator.forBlock['controls_for'] = function(block, generator) {
   // For loop.
   var variable0 = generator.variableDB_.getName(block.getFieldValue('VAR'), Blockly.Names.NameType.VARIABLE);
-  var argument0 = stm32Generator.valueToCode(block, 'FROM',
+  var argument0 = generator.valueToCode(block, 'FROM',
       Order.ASSIGNMENT) || '0';
-  var argument1 = stm32Generator.valueToCode(block, 'TO',
+  var argument1 = generator.valueToCode(block, 'TO',
       Order.ASSIGNMENT) || '0';
-  var increment = stm32Generator.valueToCode(block, 'BY',
+  var increment = generator.valueToCode(block, 'BY',
       Order.ASSIGNMENT) || '1';
-  var branch = stm32Generator.statementToCode(block, 'DO');
-  branch = stm32Generator.addLoopTrap(branch, block);
+  var branch = generator.statementToCode(block, 'DO');
+  branch = generator.addLoopTrap(branch, block);
   var code;
   if (Blockly.utils.string.isNumber(argument0) && Blockly.utils.string.isNumber(argument1) &&
       Blockly.utils.string.isNumber(increment)) {
@@ -440,19 +440,19 @@ stm32Generator.forBlock['controls_for'] = function(block, generator) {
     // Cache non-trivial values to variables to prevent repeated look-ups.
     var startVar = argument0;
     if (!argument0.match(/^\w+$/) && !Blockly.utils.string.isNumber(argument0)) {
-      var startVar = stm32Generator.variableDB_.getDistinctName(
+      var startVar = generator.variableDB_.getDistinctName(
           variable0 + '_start', Blockly.Variables.NAME_TYPE);
       code += 'var ' + startVar + ' = ' + argument0 + ';\n';
     }
     var endVar = argument1;
     if (!argument1.match(/^\w+$/) && !Blockly.utils.string.isNumber(argument1)) {
-      var endVar = stm32Generator.variableDB_.getDistinctName(
+      var endVar = generator.variableDB_.getDistinctName(
           variable0 + '_end', Blockly.Variables.NAME_TYPE);
       code += 'var ' + endVar + ' = ' + argument1 + ';\n';
     }
     // Determine loop direction at start, in case one of the bounds
     // changes during loop execution.
-    var incVar = stm32Generator.variableDB_.getDistinctName(
+    var incVar = generator.variableDB_.getDistinctName(
         variable0 + '_inc', Blockly.Variables.NAME_TYPE);
     code += 'num ' + incVar + ' = ';
     if (Blockly.utils.string.isNumber(increment)) {
@@ -461,7 +461,7 @@ stm32Generator.forBlock['controls_for'] = function(block, generator) {
       code += '(' + increment + ').abs();\n';
     }
     code += 'if (' + startVar + ' > ' + endVar + ') {\n';
-    code += stm32Generator.INDENT + incVar + ' = -' + incVar + ';\n';
+    code += generator.INDENT + incVar + ' = -' + incVar + ';\n';
     code += '}\n';
     code += 'for (' + variable0 + ' = ' + startVar + '; ' +
         incVar + ' >= 0 ? ' +
@@ -473,6 +473,35 @@ stm32Generator.forBlock['controls_for'] = function(block, generator) {
   return code;
 }
 
+
+// _____________________________________________________________________
+stm32Generator.forBlock['controls_repeat_ext'] = function(block, generator) {
+  // Repeat n times.
+  if (block.getField('TIMES')) {
+    // Internal number.
+    var repeats = String(Number(block.getFieldValue('TIMES')));
+  } else {
+    // External number.
+    var repeats = generator.valueToCode(block, 'TIMES',
+        Order.ASSIGNMENT) || '0';
+  }
+  var branch = generator.statementToCode(block, 'DO');
+  branch = generator.addLoopTrap(branch, block);
+  var code = '';
+  var loopVar = generator.variableDB_.getDistinctName(
+      'count', Blockly.Variables.NAME_TYPE);
+  var endVar = repeats;
+  if (!repeats.match(/^\w+$/) && !Blockly.utils.string.isNumber(repeats)) {
+    var endVar = generator.variableDB_.getDistinctName(
+        'repeat_end', Blockly.Variables.NAME_TYPE);
+    code += 'var ' + endVar + ' = ' + repeats + ';\n';
+  }
+  code += 'for (int ' + loopVar + ' = 0; ' +
+      loopVar + ' < ' + endVar + '; ' +
+      loopVar + '++) {\n' +
+      branch + '}\n';
+  return code;
+};
 
 // _____________________________________________________________________
 stm32Generator.forBlock['controls_flow_statements'] = function(block, generator) {
