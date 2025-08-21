@@ -177,6 +177,32 @@ stm32Generator.forBlock['math_number'] = function(block, generator) {
 };
 
 // _____________________________________________________________________
+stm32Generator.forBlock['math_arithmetic'] = function(block, generator) {
+  // Basic arithmetic operators, and power.
+  var OPERATORS = {
+    'ADD': [' + ', Order.ADDITION],
+    'MINUS': [' - ', Order.SUBTRACTION],
+    'MULTIPLY': [' * ', Order.MULTIPLICATION],
+    'DIVIDE': [' / ', Order.DIVISION],
+    'POWER': [null, Order.NONE]  // Handle power separately.
+  };
+  var tuple = OPERATORS[block.getFieldValue('OP')];
+  var operator = tuple[0];
+  var order = tuple[1];
+  var argument0 = generator.valueToCode(block, 'A', order) || '0';
+  var argument1 = generator.valueToCode(block, 'B', order) || '0';
+  var code;
+  // Power in C requires a special case since it has no operator.
+  if (!operator) {
+    generator.definitions_['import_dart_math'] = "#include \"math.h\"";
+    code = 'pow(' + argument0 + ', ' + argument1 + ')';
+    return [code, Order.ATOMIC];
+  }
+  code = argument0 + operator + argument1;
+  return [code, order];
+};
+
+// _____________________________________________________________________
 stm32Generator.forBlock['controls_if'] = function(block, generator) {
   // TODO : faire ce qu'il faut
   console.log('HELLO');
