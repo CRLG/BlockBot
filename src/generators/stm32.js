@@ -548,6 +548,37 @@ stm32Generator.forBlock['variables_get'] = function(block, generator) {
 };
 
 
+
+// _____________________________________________________________________
+stm32Generator.forBlock['x_robot'] = function(block, generator) {
+  // Numeric value.
+  const code = "inputs()->X_robot";
+  return [code, Order.ATOMIC];
+};
+// _____________________________________________________________________
+stm32Generator.forBlock['y_robot'] = function(block, generator) {
+  // Numeric value.
+  const code = "inputs()->Y_robot";
+  return [code, Order.ATOMIC];
+};
+// _____________________________________________________________________
+stm32Generator.forBlock['teta_robot'] = function(block, generator) {
+  // Numeric value.
+  const code = "inputs()->angle_robot";
+  return [code, Order.ATOMIC];
+};
+
+// _____________________________________________________________________
+stm32Generator.forBlock['robot_position'] = function(block, generator) {
+  var POS_tab = {
+    'X_ROBOT' : ['inputs()->X_robot', Order.ATOMIC],
+    'Y_ROBOT' : ['inputs()->Y_robot', Order.ATOMIC],
+    'TETA_ROBOT' : ['inputs()->angle_robot', Order.ATOMIC]
+  };
+  var pos = block.getFieldValue('POSITION');
+  return POS_tab[pos];
+};
+
 // ... faire tous les autres blocs que l'on veut mettre à disposition
 
 

@@ -518,5 +518,31 @@ export const toolbox = {
       categorystyle: 'procedure_category',
       custom: 'PROCEDURE',
     },
+    {
+      kind: 'sep',
+    },
+    {
+      kind: 'category',
+      name: 'Robot Position',
+      categorystyle: 'text_category',
+      contents: [
+        {
+          kind: 'block',
+          type: 'x_robot',
+        },
+        {
+          kind: 'block',
+          type: 'y_robot',
+        },
+        {
+          kind: 'block',
+          type: 'teta_robot',
+        },
+        {
+          kind: 'block',
+          type: 'robot_position',
+        },
+      ],
+    },
   ],
 };
