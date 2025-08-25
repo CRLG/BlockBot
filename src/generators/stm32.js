@@ -316,11 +316,11 @@ stm32Generator.forBlock['controls_if'] = function(block, generator) {
   for (n = 1; n <= this.elseifCount_; n++) {
     argument = generator.valueToCode(this, 'IF' + n, Order.NONE) || 'false';
     branch = generator.statementToCode(this, 'DO' + n);
-    code += ' else if (' + argument + ') {\n' + branch + '}';
+    code += '\nelse if (' + argument + ') {\n' + branch + '}';
   }
   if (this.elseCount_) {
     branch = generator.statementToCode(this, 'ELSE');
-    code += ' else {\n' + branch + '}';
+    code += '\nelse {\n' + branch + '}';
   }
   return code + '\n';
 };
