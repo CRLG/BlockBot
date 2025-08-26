@@ -579,6 +579,41 @@ stm32Generator.forBlock['robot_position'] = function(block, generator) {
   return POS_tab[pos];
 };
 
+// _____________________________________________________________________
+stm32Generator.forBlock['tirette'] = function(block, generator) {
+  // Numeric value.
+  const code = "inputs()->Tirette";
+  return [code, Order.ATOMIC];
+};
+
+// _____________________________________________________________________
+stm32Generator.forBlock['temps_match'] = function(block, generator) {
+  // Numeric value.
+  const code = "internals()->TempsMatch";
+  return [code, Order.ATOMIC];
+};
+
+// _____________________________________________________________________
+stm32Generator.forBlock['couleur_equipe'] = function(block, generator) {
+  // Numeric value.
+  const code = "internals()->couleur_equipe";
+  return [code, Order.ATOMIC];
+};
+
+// _____________________________________________________________________
+stm32Generator.forBlock['active_inhibe_detection_obstacle'] = function(block, generator) {
+
+   var state = block.getFieldValue('ACTIVE_INHIBE_DETECTION');
+   let code;
+   if (state == 'INHIBE') {
+        code = 'Application.m_detection_obstacles.inhibeDetection(true);'
+   }
+   else {
+           code = 'Application.m_detection_obstacles.inhibeDetection(false);'
+   }
+  return code + '\n';
+};
+
 // ... faire tous les autres blocs que l'on veut mettre à disposition
 
 

@@ -544,5 +544,28 @@ export const toolbox = {
         },
       ],
     },
+    {
+      kind: 'category',
+      name: 'Match',
+      categorystyle: 'text_category',
+      contents: [
+        {
+          kind: 'block',
+          type: 'tirette',
+        },
+        {
+          kind: 'block',
+          type: 'temps_match',
+        },
+        {
+          kind: 'block',
+          type: 'couleur_equipe',
+        },
+        {
+          kind: 'block',
+          type: 'active_inhibe_detection_obstacle',
+        },
+      ],
+    },
   ],
 };
