@@ -614,6 +614,26 @@ stm32Generator.forBlock['active_inhibe_detection_obstacle'] = function(block, ge
   return code + '\n';
 };
 
+stm32Generator.forBlock['deplacement_x_y_teta'] = function(block, generator)  {
+  var stateName = block.getFieldValue('NOM');
+
+  var nextBlock = block.getNextBlock();
+  var nextStateName = 'FIN';
+  if (nextBlock && nextBlock.type === 'deplacement_x_y_teta') {
+    nextStateName = nextBlock.getFieldValue('NOM') || 'FIN';
+  }
+  
+  var argument1 = generator.valueToCode(block, 'X', Order.ASSIGNMENT) || '0';
+  var argument2 = generator.valueToCode(block, 'Y', Order.ASSIGNMENT) || '0';
+  var argument3 = generator.valueToCode(block, 'ANGLE', Order.ASSIGNMENT) || '0';
+
+
+var code = '\ncase ' + stateName + ' :\n\tif (onEntry()) {\n\t\tApplication.m_detection_obstacles.inhibeDetection(true);' +
+	'\n\t\toutputs()->CommandeMouvementXY_TETA_sym(' + argument1 + ',' + argument2 + ',' + argument3 + ');/*valeur x mesurée en réelle avec la dérive*/\n\t}' +
+	'\n\tgotoStateIfConvergence(' + nextStateName + ',7000);\n\tif (onExit()) {  }\n\tbreak;';
+
+  return code;
+};
 // ... faire tous les autres blocs que l'on veut mettre à disposition
 
 

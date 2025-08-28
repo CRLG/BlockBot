@@ -542,6 +542,10 @@ export const toolbox = {
           kind: 'block',
           type: 'robot_position',
         },
+        {
+        	kind: 'block',
+        	type: 'deplacement_x_y_teta',
+        	},
       ],
     },
     {
