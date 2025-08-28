@@ -571,5 +571,66 @@ export const toolbox = {
         },
       ],
     },
+    {
+      kind: 'category',
+      name: 'Robot (débutant)',
+      categorystyle: 'text_category',
+      contents: [
+        {
+          kind: 'block',
+          type: 'description_debutant',
+        },
+        {
+          kind: 'block',
+          type: 'deplacement_robot_lineaire',
+          inputs: {
+            VALEUR: {
+              shadow: {
+                type: 'math_number',
+                fields: {
+                  NUM: 20,
+                },
+              },
+            },
+          },
+        },
+        {
+          kind: 'block',
+          type: 'set_angle_robot',
+          inputs: {
+            VALEUR: {
+              shadow: {
+                type: 'math_number',
+                fields: {
+                  NUM: 90,
+                },
+              },
+            },
+          },
+        },
+        {
+          kind: 'block',
+          type: 'attendre',
+          inputs: {
+            VALEUR: {
+              shadow: {
+                type: 'math_number',
+                fields: {
+                  NUM: 500,
+                },
+              },
+            },
+          },
+        },
+        {
+          kind: 'block',
+          type: 'attendre_tirette',
+        },
+               {
+          kind: 'block',
+          type: 'attendre_condition',
+        },
+      ],
+    },
   ],
 };

@@ -89,10 +89,12 @@ stm32Generator.init = function(workspace) {
   var variables = Blockly.Variables.allUsedVarModels(workspace);
   for (var i = 0; i < variables.length; i++) {
     defvars.push(this.variableDB_.getName(variables[i].getId(),
-        Blockly.Variables.NAME_TYPE) + ' = None');
+        Blockly.Names.NameType.VARIABLE) + ' = None');
   }
 
   this.definitions_['variables'] = defvars.join('\n');
+  
+  this.sm_state_number = 1;  // indice pour calculer automatiquement le numéro d'état de la machine d'état SM du code généré (valeur d'init à "1" pour toutes les machines d'état car le "0" est déjà utilisé)
 };
 
 
@@ -634,6 +636,139 @@ var code = '\ncase ' + stateName + ' :\n\tif (onEntry()) {\n\t\tApplication.m_de
 
   return code;
 };
+
+// ==========================================================================
+//      ROBOT DEBUTANT
+// ==========================================================================
+
+stm32Generator.forBlock['description_debutant'] = function(block, generator) {
+  var code = '// _____________________________________\n';
+  code+= 'void SM_BlocklyDebutant::step()\n';
+  code+= '{\n';
+  code+= '    switch (m_state)\n';
+  code+= '    {\n';
+  code += generator.statementToCode(block, 'DESCR');
+  code+= '    }\n';
+  code+= '}\n';
+ 
+  return '\n' + code;
+};
+
+// _____________________________________________________________________
+stm32Generator.forBlock['deplacement_robot_lineaire'] = function(block, generator) {
+  var mouvement = block.getFieldValue('MOUVEMENT');
+  var value = generator.valueToCode(block, 'VALEUR', Order.ATOMIC);
+  let code;
+  
+  code = '    case STATE_' + String(generator.sm_state_number) + ' :\n';
+  code +='        if (onEntry()) {\n';
+  if (mouvement == 'AVANT') {
+        code += '          Application.m_asservissement.CommandeMouvementDistanceAngle(' + value + ', inputs()->angle_robot);\n';
+  }
+  else if (mouvement == 'ARRIERE') {
+        code += '          Application.m_asservissement.CommandeMouvementDistanceAngle((-' + value + '), inputs()->angle_robot);\n';
+  }
+  else {
+        code += '?';     
+  }
+  code +='        }\n';
+  code +='        gotoStateIfConvergence(STATE_' + String(generator.sm_state_number+1) + ',5000);\n';
+  code +='        if (onExit()) { }\n';
+  code +='        break;'; 
+  generator.sm_state_number = generator.sm_state_number + 1;   
+  return code + '\n';
+
+};
+
+// _____________________________________________________________________
+stm32Generator.forBlock['set_angle_robot'] = function(block, generator) {
+  var unites = block.getFieldValue('UNITES');
+  var value = generator.valueToCode(block, 'VALEUR', Order.ATOMIC);
+  let code;
+  
+  var valeur_avec_conversion;
+  if (unites == 'DEGRES') {
+    valeur_avec_conversion = '(M_PI/180)*(' + value + ')'; 
+  }
+  else {
+    valeur_avec_conversion = value;
+  }
+  
+  code = '    case STATE_' + String(generator.sm_state_number) + ' :\n';
+  code +='        if (onEntry()) {\n';
+  code +='          Application.m_asservissement.CommandeMouvementDistanceAngle(0, ' + valeur_avec_conversion + ');\n';
+  code +='        }\n';
+  code +='        gotoStateIfConvergence(STATE_' + String(generator.sm_state_number+1) + ',5000);\n';
+  code +='        if (onExit()) { }\n';  
+  code +='        break;'; 
+  generator.sm_state_number = generator.sm_state_number + 1;   
+  return code + '\n';
+};
+
+// _____________________________________________________________________
+stm32Generator.forBlock['attendre'] = function(block, generator) {
+  var unites = block.getFieldValue('UNITES');
+  var value = generator.valueToCode(block, 'VALEUR', Order.ATOMIC);
+  let code;
+
+  var valeur_avec_conversion;
+  if (unites == 'SEC') {
+    valeur_avec_conversion = '1000 * ' + value; 
+  }
+  else {
+    valeur_avec_conversion = value;
+  }
+
+  
+  code = '    case STATE_' + String(generator.sm_state_number) + ' :\n';
+  code +='        if (onEntry()) {\n';
+  code +='        }\n';
+  code +='        gotoStateAfter('+ valeur_avec_conversion + ', STATE_' + String(generator.sm_state_number+1) + ');\n';
+  code +='        if (onExit()) { }\n';
+  code +='        break;'; 
+  generator.sm_state_number = generator.sm_state_number + 1;   
+  return code + '\n';
+};
+
+// _____________________________________________________________________
+stm32Generator.forBlock['attendre_tirette'] = function(block, generator) {
+  let code;
+  code = '    case STATE_' + String(generator.sm_state_number) + ' :\n';
+  code +='        if (onEntry()) {\n';
+  code +='        }\n';
+  code +='        gotoStateIfTrue(STATE_' + String(generator.sm_state_number+1) + ', inputs()->Tirette);\n';
+  code +='        if (onExit()) { }\n';  
+  code +='        break;'; 
+  generator.sm_state_number = generator.sm_state_number + 1;   
+  return code + '\n';
+};
+
+// _____________________________________________________________________
+stm32Generator.forBlock['attendre_condition'] = function(block, generator) {
+  var vrai_faux = block.getFieldValue('VRAI_FAUX');
+  var condition = generator.valueToCode(block, 'CONDITION', Order.ATOMIC);
+  let code;
+  
+  var condition_vrai_faux;
+  if (vrai_faux == 'FAUX') {
+    condition_vrai_faux = '!(' + condition + ')';
+  }
+  else {
+    condition_vrai_faux = condition;
+  }
+  
+  
+  code = '    case STATE_' + String(generator.sm_state_number) + ' :\n';
+  code +='        if (onEntry()) {\n';
+  code +='        }\n';
+  code +='        gotoStateIfTrue(STATE_' + String(generator.sm_state_number+1) + ', ' +  condition_vrai_faux + ');\n';
+  code +='        if (onExit()) { }\n';
+  code +='        break;'; 
+  generator.sm_state_number = generator.sm_state_number + 1;   
+  return code + '\n';
+};
+
+
 // ... faire tous les autres blocs que l'on veut mettre à disposition
 
 

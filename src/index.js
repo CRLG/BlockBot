@@ -8,6 +8,7 @@ import * as Blockly from 'blockly';
 import {blocks} from './blocks/text';
 import {blocks_robot_position} from './blocks/robot_position';
 import {blocks_match} from './blocks/match';
+import {blocks_robot_debutant} from './blocks/robot_debutant';
 import {stm32Generator} from './generators/stm32';
 import {arduinoGenerator} from './generators/arduino';
 import {save, load} from './serialization';
@@ -19,6 +20,7 @@ import './index.css';
 Blockly.common.defineBlocks(blocks);
 Blockly.common.defineBlocks(blocks_robot_position);
 Blockly.common.defineBlocks(blocks_match);
+Blockly.common.defineBlocks(blocks_robot_debutant);
 
 // Autorise l'ajout de commentaires par clic droit sur la page
 Blockly.ContextMenuItems.registerCommentOptions();
