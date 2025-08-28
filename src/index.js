@@ -131,6 +131,21 @@ ws.addChangeListener((e) => {
   runCode();
 });
 
+send2qt.addEventListener('click', () => {
+    generator_type = GeneratorType.STM32_GENERATOR
+    runCode();  // met à jour le code généré avec la nouvelle cible
+    sendGeneratedCode();
+});
+function sendGeneratedCode() {
+    const code = stm32Generator.workspaceToCode(ws);
+
+    // Envoyer en une seule requête
+    fetch('http://localhost:3001/data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({code})
+    });
+}
 
 // --------------------------------------------------
 // Sauvegarde du code généré dans un fichier texte
