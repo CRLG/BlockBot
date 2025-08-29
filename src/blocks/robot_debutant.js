@@ -214,6 +214,38 @@ const valeur_si_couleur_equipe = {
   "helpUrl": ""
 }
 
+
+const commande_moteur_manuelle_duree = {
+  "type": "commande_moteur_manuelle_duree",
+  "message0": "Commande moteur Gauche %1 %% %2 / moteur Droit %3 %% %4 Pendant %5 [msec]",
+  "args0": [
+    {
+      "type": "input_value",
+      "name": "MOT_GAUCHE"
+    },
+    {
+      "type": "input_dummy"
+    },
+    {
+      "type": "input_value",
+      "name": "MOT_DROIT"
+    },
+    {
+      "type": "input_dummy"
+    },
+    {
+      "type": "input_value",
+      "name": "DUREE_MSEC"
+    }
+  ],
+  "inputsInline": true,
+  "previousStatement": null,
+  "nextStatement": null,
+  "colour": 100,
+  "tooltip": "Commande manuelle des moteurs gauche et droit pendant une durée",
+  "helpUrl": ""
+}
+
 // Create the block definitions for the JSON-only blocks.
 // This does not register their definitions with Blockly.
 // This file has no side effects!
@@ -225,5 +257,6 @@ export const blocks_robot_debutant = Blockly.common.createBlockDefinitionsFromJs
   attendre_tirette,
   attendre_condition,
   valeur_si_couleur_equipe,
+  commande_moteur_manuelle_duree,
   robot_object
  ]);

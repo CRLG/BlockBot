@@ -780,6 +780,28 @@ stm32Generator.forBlock['valeur_si_couleur_equipe'] = function(block, generator)
 };
 
 
+// _____________________________________________________________________
+stm32Generator.forBlock['commande_moteur_manuelle_duree'] = function(block, generator) {
+  var cde_g = generator.valueToCode(block, 'MOT_GAUCHE', Order.ATOMIC);
+  var cde_d = generator.valueToCode(block, 'MOT_DROIT', Order.ATOMIC);
+  var duree = generator.valueToCode(block, 'DUREE_MSEC', Order.ATOMIC);
+
+  var code;
+  code = '    case STATE_' + String(generator.sm_state_number) + ' :\n';
+  code +='        if (onEntry()) {\n';
+  code +='          Application.m_asservissement.CommandeManuelle(' + cde_g + ', ' + cde_d + ');\n';
+  code +='        }\n';
+  code +='        gotoStateAfter('+ duree + ', STATE_' + String(generator.sm_state_number+1) + ');\n';
+  code +='        if (onExit()) {\n';
+  code +='          Application.m_asservissement.CommandeManuelle(0, 0);\n';
+  code +='        }\n';
+  code +='        break;';
+  generator.sm_state_number = generator.sm_state_number + 1;
+  return code + '\n';
+};
+
+
+
 // ... faire tous les autres blocs que l'on veut mettre à disposition
 
 

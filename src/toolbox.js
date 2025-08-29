@@ -600,6 +600,36 @@ export const toolbox = {
         },
         {
           kind: 'block',
+          type: 'commande_moteur_manuelle_duree',
+          inputs: {
+            MOT_GAUCHE: {
+              shadow: {
+                type: 'math_number',
+                fields: {
+                  NUM: 0,
+                },
+              },
+            },
+            MOT_DROIT: {
+              shadow: {
+                type: 'math_number',
+                fields: {
+                  NUM: 0,
+                },
+              },
+            },
+            DUREE_MSEC: {
+              shadow: {
+                type: 'math_number',
+                fields: {
+                  NUM: 1000,
+                },
+              },
+            },
+          },
+        },
+        {
+          kind: 'block',
           type: 'set_angle_robot',
           inputs: {
             VALEUR: {
