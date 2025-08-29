@@ -192,7 +192,27 @@ const robot_object = {
   "colour": 230,
 };
 
-
+const valeur_si_couleur_equipe = {
+  "type": "valeur_si_couleur_equipe",
+  "message0": "Valeur si équipe couleur1: %1 / si couleur2: %2",
+  "args0": [
+    {
+      "type": "input_value",
+      "name": "VAL_COULEUR1",
+      "align": "RIGHT"
+    },
+    {
+      "type": "input_value",
+      "name": "VAL_COULEUR2",
+      "align": "RIGHT"
+    }
+  ],
+  "inputsInline": true,
+  "output": null,
+  "colour": 230,
+  "tooltip": "Choix de la valeur en fonction de la couleur d'équipe",
+  "helpUrl": ""
+}
 
 // Create the block definitions for the JSON-only blocks.
 // This does not register their definitions with Blockly.
@@ -204,5 +224,6 @@ export const blocks_robot_debutant = Blockly.common.createBlockDefinitionsFromJs
   attendre,
   attendre_tirette,
   attendre_condition,
+  valeur_si_couleur_equipe,
   robot_object
  ]);

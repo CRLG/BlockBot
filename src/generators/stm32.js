@@ -769,6 +769,17 @@ stm32Generator.forBlock['attendre_condition'] = function(block, generator) {
 };
 
 
+// _____________________________________________________________________
+stm32Generator.forBlock['valeur_si_couleur_equipe'] = function(block, generator) {
+  // Numeric value.
+  var val_couleur1 = generator.valueToCode(block, 'VAL_COULEUR1', Order.ATOMIC);
+  var val_couleur2 = generator.valueToCode(block, 'VAL_COULEUR2', Order.ATOMIC);
+
+  var code = 'internals()->couleur_equipe == SM_DatasInterface::EQUIPE_COULEUR_1?' + val_couleur1 + ':' + val_couleur2;  
+  return [code, Order.NONE];
+};
+
+
 // ... faire tous les autres blocs que l'on veut mettre à disposition
 
 

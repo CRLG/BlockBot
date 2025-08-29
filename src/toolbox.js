@@ -582,6 +582,10 @@ export const toolbox = {
         },
         {
           kind: 'block',
+          type: 'valeur_si_couleur_equipe',
+        },
+        {
+          kind: 'block',
           type: 'deplacement_robot_lineaire',
           inputs: {
             VALEUR: {
