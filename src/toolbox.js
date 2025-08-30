@@ -614,6 +614,20 @@ export const toolbox = {
         },
         {
           kind: 'block',
+          type: 'set_angle_robot',
+          inputs: {
+            VALEUR: {
+              shadow: {
+                type: 'math_number',
+                fields: {
+                  NUM: 90,
+                },
+              },
+            },
+          },
+        },
+        {
+          kind: 'block',
           type: 'commande_moteur_manuelle_duree',
           inputs: {
             MOT_GAUCHE: {
@@ -637,20 +651,6 @@ export const toolbox = {
                 type: 'math_number',
                 fields: {
                   NUM: 1000,
-                },
-              },
-            },
-          },
-        },
-        {
-          kind: 'block',
-          type: 'set_angle_robot',
-          inputs: {
-            VALEUR: {
-              shadow: {
-                type: 'math_number',
-                fields: {
-                  NUM: 90,
                 },
               },
             },

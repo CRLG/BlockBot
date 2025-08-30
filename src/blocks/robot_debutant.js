@@ -60,7 +60,7 @@ const deplacement_robot_lineaire = {
   "inputsInline": true,
   "previousStatement": null,
   "nextStatement": null,
-  "colour": 230,
+  "colour": 1,
   "tooltip": "Commande de déplacement du robot",
   "helpUrl": ""
 };
@@ -102,7 +102,7 @@ const reculer = {
 
 const set_angle_robot = {
   "type": "set_angle_robot",
-  "message0": "Angle de %1 %2",
+  "message0": "S'orienter à %1 %2",
   "args0": [
     {
       "type": "input_value",
@@ -121,12 +121,12 @@ const set_angle_robot = {
           "RADIANS"
         ]
       ]
-    },        
+    },
   ],
   "inputsInline": true,
   "previousStatement": null,
   "nextStatement": null,
-  "colour": 230,
+  "colour": 1,
   "tooltip": "Commande de position angulaire du robot",
   "helpUrl": ""
 };
@@ -153,7 +153,7 @@ const attendre = {
           "SEC"
         ]
       ]
-    },        
+    },
   ],
   "inputsInline": true,
   "previousStatement": null,
@@ -200,7 +200,7 @@ const attendre_condition = {
           "FAUX"
         ]
       ]
-    },        
+    },
   ],
   "inputsInline": true,
   "previousStatement": null,
@@ -276,7 +276,7 @@ const commande_moteur_manuelle_duree = {
   "inputsInline": true,
   "previousStatement": null,
   "nextStatement": null,
-  "colour": 100,
+  "colour": 40,
   "tooltip": "Commande manuelle des moteurs gauche et droit pendant une durée",
   "helpUrl": ""
 }
