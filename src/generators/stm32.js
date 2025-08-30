@@ -681,6 +681,38 @@ stm32Generator.forBlock['deplacement_robot_lineaire'] = function(block, generato
 };
 
 // _____________________________________________________________________
+stm32Generator.forBlock['avancer'] = function(block, generator) {
+  var value = generator.valueToCode(block, 'VALEUR', Order.ATOMIC);
+  var code;
+
+  code = '    case STATE_' + String(generator.sm_state_number) + ' :\n';
+  code +='        if (onEntry()) {\n';
+  code += '          Application.m_asservissement.CommandeMouvementDistanceAngle(' + value + ', inputs()->angle_robot);\n';
+  code +='        }\n';
+  code +='        gotoStateIfConvergence(STATE_' + String(generator.sm_state_number+1) + ',5000);\n';
+  code +='        if (onExit()) { }\n';
+  code +='        break;';
+  generator.sm_state_number = generator.sm_state_number + 1;
+  return code + '\n';
+};
+
+// _____________________________________________________________________
+stm32Generator.forBlock['reculer'] = function(block, generator) {
+  var value = generator.valueToCode(block, 'VALEUR', Order.ATOMIC);
+  var code;
+
+  code = '    case STATE_' + String(generator.sm_state_number) + ' :\n';
+  code +='        if (onEntry()) {\n';
+  code += '          Application.m_asservissement.CommandeMouvementDistanceAngle((-' + value + '), inputs()->angle_robot);\n';
+  code +='        }\n';
+  code +='        gotoStateIfConvergence(STATE_' + String(generator.sm_state_number+1) + ',5000);\n';
+  code +='        if (onExit()) { }\n';
+  code +='        break;';
+  generator.sm_state_number = generator.sm_state_number + 1;
+  return code + '\n';
+};
+
+// _____________________________________________________________________
 stm32Generator.forBlock['set_angle_robot'] = function(block, generator) {
   var unites = block.getFieldValue('UNITES');
   var value = generator.valueToCode(block, 'VALEUR', Order.ATOMIC);

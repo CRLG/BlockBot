@@ -65,6 +65,41 @@ const deplacement_robot_lineaire = {
   "helpUrl": ""
 };
 
+
+const avancer = {
+  "type": "avancer",
+  "message0": "Avancer de %1 [cm]",
+  "args0": [
+    {
+      "type": "input_value",
+      "name": "VALEUR"
+    }
+  ],
+  "inputsInline": true,
+  "previousStatement": null,
+  "nextStatement": null,
+  "colour": 1,
+  "tooltip": "Commande de déplacement en avant",
+  "helpUrl": ""
+};
+
+const reculer = {
+  "type": "reculer",
+  "message0": "Reculer de %1 [cm]",
+  "args0": [
+    {
+      "type": "input_value",
+      "name": "VALEUR"
+    }
+  ],
+  "inputsInline": true,
+  "previousStatement": null,
+  "nextStatement": null,
+  "colour": 1,
+  "tooltip": "Commande de déplacement en arrière",
+  "helpUrl": ""
+};
+
 const set_angle_robot = {
   "type": "set_angle_robot",
   "message0": "Angle de %1 %2",
@@ -252,6 +287,8 @@ const commande_moteur_manuelle_duree = {
 export const blocks_robot_debutant = Blockly.common.createBlockDefinitionsFromJsonArray([
   robot_debutant,
   deplacement_robot_lineaire,
+  avancer,
+  reculer,
   set_angle_robot,
   attendre,
   attendre_tirette,

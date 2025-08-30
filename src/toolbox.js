@@ -586,7 +586,21 @@ export const toolbox = {
         },
         {
           kind: 'block',
-          type: 'deplacement_robot_lineaire',
+          type: 'avancer',
+          inputs: {
+            VALEUR: {
+              shadow: {
+                type: 'math_number',
+                fields: {
+                  NUM: 20,
+                },
+              },
+            },
+          },
+        },
+        {
+          kind: 'block',
+          type: 'reculer',
           inputs: {
             VALEUR: {
               shadow: {
