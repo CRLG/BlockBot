@@ -192,7 +192,59 @@ const robot_object = {
   "colour": 230,
 };
 
+const valeur_si_couleur_equipe = {
+  "type": "valeur_si_couleur_equipe",
+  "message0": "Valeur si équipe couleur1: %1 / si couleur2: %2",
+  "args0": [
+    {
+      "type": "input_value",
+      "name": "VAL_COULEUR1",
+      "align": "RIGHT"
+    },
+    {
+      "type": "input_value",
+      "name": "VAL_COULEUR2",
+      "align": "RIGHT"
+    }
+  ],
+  "inputsInline": true,
+  "output": null,
+  "colour": 230,
+  "tooltip": "Choix de la valeur en fonction de la couleur d'équipe",
+  "helpUrl": ""
+}
 
+
+const commande_moteur_manuelle_duree = {
+  "type": "commande_moteur_manuelle_duree",
+  "message0": "Commande moteur Gauche %1 %% %2 / moteur Droit %3 %% %4 Pendant %5 [msec]",
+  "args0": [
+    {
+      "type": "input_value",
+      "name": "MOT_GAUCHE"
+    },
+    {
+      "type": "input_dummy"
+    },
+    {
+      "type": "input_value",
+      "name": "MOT_DROIT"
+    },
+    {
+      "type": "input_dummy"
+    },
+    {
+      "type": "input_value",
+      "name": "DUREE_MSEC"
+    }
+  ],
+  "inputsInline": true,
+  "previousStatement": null,
+  "nextStatement": null,
+  "colour": 100,
+  "tooltip": "Commande manuelle des moteurs gauche et droit pendant une durée",
+  "helpUrl": ""
+}
 
 // Create the block definitions for the JSON-only blocks.
 // This does not register their definitions with Blockly.
@@ -204,5 +256,7 @@ export const blocks_robot_debutant = Blockly.common.createBlockDefinitionsFromJs
   attendre,
   attendre_tirette,
   attendre_condition,
+  valeur_si_couleur_equipe,
+  commande_moteur_manuelle_duree,
   robot_object
  ]);
