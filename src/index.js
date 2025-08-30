@@ -33,6 +33,7 @@ const buttonsDiv = document.getElementById('buttons');
 const saveButton = document.getElementById('saveButton');
 const loadButton = document.getElementById('loadButton');
 const savedFile =document.getElementById('fileInput');
+const send2qt =document.getElementById('send2Qt');
 const ws = Blockly.inject(blocklyDiv, 
         {toolbox,
             grid:				// Affiche la grille
@@ -172,4 +173,5 @@ function saveTextFile(filename, data) {
         document.body.removeChild(elem);
     }
 }
+
 
