@@ -658,10 +658,6 @@ export const toolbox = {
         },
         {
           kind: 'block',
-          type: 'attendre_tirette',
-        },
-               {
-          kind: 'block',
           type: 'attendre_condition',
         },
       ],
