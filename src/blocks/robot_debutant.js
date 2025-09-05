@@ -6,34 +6,136 @@
 
 import * as Blockly from 'blockly/core';
 
-// Create a custom block called 'add_text' that adds
-// text to the output div on the sample app.
-// This is just an example and you should replace this with your
-// own custom blocks.
-
-const robot_debutant = {
-  "type": "description_debutant",
-  "message0": "%1 %2 %3",
+// ___________________________________________
+const nom_tache_sm = {
+  "type": "nom_tache_sm",
+  "message0": "Tache %1 %2",
   "args0": [
     {
-      "type": "field_label_serializable",
-      "name": "NAME",
-      "text": "Comportement Robot (débutant)"
+      "type": "field_dropdown",
+      "name": "NOM_TACHE_SM",
+      "options": [
+        [
+          "SM_Tache1",
+          "SM_TACHE1"
+        ],
+        [
+          "SM_Tache2",
+          "SM_TACHE2"
+        ],
+        [
+          "SM_Tache3",
+          "SM_TACHE3"
+        ],
+        [
+          "SM_Tache4",
+          "SM_TACHE4"
+        ],
+        [
+          "SM_Tache5",
+          "SM_TACHE5"
+        ],
+        [
+          "SM_Tache6",
+          "SM_TACHE6"
+        ],
+        [
+          "SM_Tache7",
+          "SM_TACHE7"
+        ],
+        [
+          "SM_Tache8",
+          "SM_TACHE8"
+        ],
+        [
+          "SM_Tache9",
+          "SM_TACHE9"
+        ],
+        [
+          "SM_Tache10",
+          "SM_TACHE10"
+        ]
+      ]
     },
     {
+      "type": "input_end_row"
+    }
+  ],
+  "output": null,
+  "colour": 285,
+  "tooltip": "Choix de la tâche",
+  "helpUrl": ""
+};
+
+// ___________________________________________
+const robot_debutant = {
+  "type": "description_debutant",
+  "message0": "Comportement Robot (débutant) %1 %2 %3",
+  "args0": [
+    {
       "type": "input_dummy"
+    },
+    {
+      "type": "input_value",
+      "name": "NOM_SM",
+      "check": "nom_tache_sm",
     },
     {
       "type": "input_statement",
       "name": "DESCR"
     }
   ],
+  "inputsInline": true,
   "colour": 230,
   "tooltip": "",
   "helpUrl": ""
 };
 
+// ___________________________________________
+const activer_tache = {
+  "type": "activer_tache",
+  "message0": "Activer tâche %1 %2",
+  "args0": [
+    {
+      "type": "input_dummy"
+    },
+    {
+      "type": "input_value",
+      "name": "NOM_SM",
+      "check": "nom_tache_sm",
+    }
+  ],
+  "inputsInline": true,
+  "previousStatement": null,
+  "nextStatement": null,
+  "colour": 285,
+  "tooltip": "Active une tâche",
+  "helpUrl": ""
+};
 
+// ___________________________________________
+const arreter_tache = {
+  "type": "arreter_tache",
+  "message0": "Arrêter tâche %1 %2",
+  "args0": [
+    {
+      "type": "input_dummy"
+    },
+    {
+      "type": "input_value",
+      "name": "NOM_SM",
+      "check": "nom_tache_sm",
+    }
+  ],
+  "inputsInline": true,
+  "previousStatement": null,
+  "nextStatement": null,
+  "colour": 285,
+  "tooltip": "Arrête une tâche",
+  "helpUrl": ""
+};
+
+// ___________________________________________
 const deplacement_robot_lineaire = {
   "type": "deplacement_robot_lineaire",
   "message0": "Déplacement %1 de %2 [cm]",
@@ -65,7 +167,7 @@ const deplacement_robot_lineaire = {
   "helpUrl": ""
 };
 
-
+// ___________________________________________
 const avancer = {
   "type": "avancer",
   "message0": "Avancer de %1 [cm]",
@@ -100,6 +202,7 @@ const reculer = {
   "helpUrl": ""
 };
 
+// ___________________________________________
 const set_angle_robot = {
   "type": "set_angle_robot",
   "message0": "S'orienter à %1 %2",
@@ -131,7 +234,7 @@ const set_angle_robot = {
   "helpUrl": ""
 };
 
-
+// ___________________________________________
 const attendre = {
   "type": "attendre",
   "message0": "Attendre %1 %2",
@@ -163,6 +266,7 @@ const attendre = {
   "helpUrl": ""
 };
 
+// ___________________________________________
 const attendre_tirette = {
   "type": "attendre_tirette",
   "message0": "Attendre Tirette %1",
@@ -178,7 +282,7 @@ const attendre_tirette = {
   "helpUrl": ""
 };
 
-
+// ___________________________________________
 const attendre_condition = {
   "type": "attendre_condition",
   "message0": "Attendre condition %1 %2",
@@ -210,7 +314,7 @@ const attendre_condition = {
   "helpUrl": ""
 };
 
-
+// ___________________________________________
 const robot_object = {
   "type": "object",
   "message0": "{ %1 %2 }",
@@ -227,6 +331,7 @@ const robot_object = {
   "colour": 230,
 };
 
+// ___________________________________________
 const valeur_si_couleur_equipe = {
   "type": "valeur_si_couleur_equipe",
   "message0": "Valeur si équipe couleur1: %1 / si couleur2: %2",
@@ -249,7 +354,7 @@ const valeur_si_couleur_equipe = {
   "helpUrl": ""
 }
 
-
+// ___________________________________________
 const commande_moteur_manuelle_duree = {
   "type": "commande_moteur_manuelle_duree",
   "message0": "Commande moteur Gauche %1 %% %2 / moteur Droit %3 %% %4 Pendant %5 [msec]",
@@ -281,11 +386,15 @@ const commande_moteur_manuelle_duree = {
   "helpUrl": ""
 }
 
+// ================================================================
 // Create the block definitions for the JSON-only blocks.
 // This does not register their definitions with Blockly.
 // This file has no side effects!
 export const blocks_robot_debutant = Blockly.common.createBlockDefinitionsFromJsonArray([
   robot_debutant,
+  nom_tache_sm,
+  activer_tache,
+  arreter_tache,
   deplacement_robot_lineaire,
   avancer,
   reculer,

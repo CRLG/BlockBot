@@ -642,16 +642,57 @@ var code = '\ncase ' + stateName + ' :\n\tif (onEntry()) {\n\t\tApplication.m_de
 // ==========================================================================
 
 stm32Generator.forBlock['description_debutant'] = function(block, generator) {
+  generator.sm_state_number = 1;  // RAZ de l'indice du numéro d'état à chaque nouveau bloc SM
+  const sm_name = generator.valueToCode(block, 'NOM_SM', Order.NONE) || "''";
   var code = '// _____________________________________\n';
-  code+= 'void SM_BlocklyDebutant::step()\n';
+  code+= 'void ' + sm_name + '::step()\n';
   code+= '{\n';
   code+= '    switch (m_state)\n';
   code+= '    {\n';
   code += generator.statementToCode(block, 'DESCR');
   code+= '    }\n';
   code+= '}\n';
- 
+
   return '\n' + code;
+};
+
+
+// _____________________________________________________________________
+stm32Generator.forBlock['nom_tache_sm'] = function(block, generator) {
+  const code = block.getField('NOM_TACHE_SM').getText(); // récupère le nom dans la liste déroulante
+  // Application.m_modelia.m_sm_tache1.start();
+  return [code, Order.ATOMIC];
+};
+
+
+// _____________________________________________________________________
+stm32Generator.forBlock['activer_tache'] = function(block, generator) {
+  const sm_name = generator.valueToCode(block, 'NOM_SM', Order.NONE) || "''";
+  let code;
+  code = '    case STATE_' + String(generator.sm_state_number) + ' :\n';
+  code +='        if (onEntry()) {\n';
+  code += '          Application.m_modelia.m_' + sm_name.toLowerCase() + '.start();\n';   // le nom de l'objet tâche dans le code est m_sm_tache1 (en minuscule)
+  code +='        }\n';
+  code +='        gotoState(STATE_' + String(generator.sm_state_number+1) + ');\n';
+  code +='        if (onExit()) { }\n';
+  code +='        break;\n';
+  generator.sm_state_number = generator.sm_state_number + 1;
+  return code;
+};
+
+// _____________________________________________________________________
+stm32Generator.forBlock['arreter_tache'] = function(block, generator) {
+  const sm_name = generator.valueToCode(block, 'NOM_SM', Order.NONE) || "''";
+  let code;
+  code = '    case STATE_' + String(generator.sm_state_number) + ' :\n';
+  code +='        if (onEntry()) {\n';
+  code += '          Application.m_modelia.m_' + sm_name.toLowerCase() + '.stop();\n';
+  code +='        }\n';
+  code +='        gotoState(STATE_' + String(generator.sm_state_number+1) + ');\n';
+  code +='        if (onExit()) { }\n';
+  code +='        break;\n';
+  generator.sm_state_number = generator.sm_state_number + 1;
+  return code;
 };
 
 // _____________________________________________________________________

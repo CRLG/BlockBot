@@ -579,6 +579,35 @@ export const toolbox = {
         {
           kind: 'block',
           type: 'description_debutant',
+          inputs: {
+            NOM_SM: {
+              shadow: {
+                type: 'nom_tache_sm',
+              },
+            },
+          },
+        },
+        {
+          kind: 'block',
+          type: 'activer_tache',
+          inputs: {
+            NOM_SM: {
+              shadow: {
+                type: 'nom_tache_sm',
+              },
+            },
+          },
+        },
+        {
+          kind: 'block',
+          type: 'arreter_tache',
+          inputs: {
+            NOM_SM: {
+              shadow: {
+                type: 'nom_tache_sm',
+              },
+            },
+          },
         },
         {
           kind: 'block',
