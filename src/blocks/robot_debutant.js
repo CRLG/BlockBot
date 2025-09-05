@@ -352,7 +352,7 @@ const valeur_si_couleur_equipe = {
   "colour": 230,
   "tooltip": "Choix de la valeur en fonction de la couleur d'équipe",
   "helpUrl": ""
-}
+};
 
 // ___________________________________________
 const commande_moteur_manuelle_duree = {
@@ -384,7 +384,37 @@ const commande_moteur_manuelle_duree = {
   "colour": 40,
   "tooltip": "Commande manuelle des moteurs gauche et droit pendant une durée",
   "helpUrl": ""
-}
+};
+
+
+// ___________________________________________
+const commande_servo_position_vitesse = {
+  "type": "commande_servo_position_vitesse",
+  "message0": "Commande Servo %1 / Position: %2 / Vitesse: %3",
+  "args0": [
+    {
+      "type": "input_value",
+      "name": "INDEX_SERVO",
+      "align": "RIGHT"
+    },
+    {
+      "type": "input_value",
+      "name": "POSITION",
+      "align": "RIGHT"
+    },
+    {
+      "type": "input_value",
+      "name": "VITESSE",
+      "align": "RIGHT"
+    }
+  ],
+  "inputsInline": true,
+  "previousStatement": null,
+  "nextStatement": null,
+  "colour": 145,
+  "tooltip": "Commande un servo à une position donnée",
+  "helpUrl": ""
+};
 
 // ================================================================
 // Create the block definitions for the JSON-only blocks.
@@ -404,5 +434,6 @@ export const blocks_robot_debutant = Blockly.common.createBlockDefinitionsFromJs
   attendre_condition,
   valeur_si_couleur_equipe,
   commande_moteur_manuelle_duree,
+  commande_servo_position_vitesse,
   robot_object
  ]);

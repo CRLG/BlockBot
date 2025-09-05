@@ -687,6 +687,36 @@ export const toolbox = {
         },
         {
           kind: 'block',
+          type: 'commande_servo_position_vitesse',
+          inputs: {
+            INDEX_SERVO: {
+              shadow: {
+                type: 'math_number',
+                fields: {
+                  NUM: 0,
+                },
+              },
+            },
+            POSITION: {
+              shadow: {
+                type: 'math_number',
+                fields: {
+                  NUM: 1500,
+                },
+              },
+            },
+            VITESSE: {
+              shadow: {
+                type: 'math_number',
+                fields: {
+                  NUM: 10,
+                },
+              },
+            },
+          },
+        },
+        {
+          kind: 'block',
           type: 'attendre',
           inputs: {
             VALEUR: {

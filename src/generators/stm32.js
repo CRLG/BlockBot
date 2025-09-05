@@ -874,6 +874,26 @@ stm32Generator.forBlock['commande_moteur_manuelle_duree'] = function(block, gene
 };
 
 
+// _____________________________________________________________________
+stm32Generator.forBlock['commande_servo_position_vitesse'] = function(block, generator) {
+  var index_servo = generator.valueToCode(block, 'INDEX_SERVO', Order.ATOMIC);
+  var pos = generator.valueToCode(block, 'POSITION', Order.ATOMIC);
+  var speed = generator.valueToCode(block, 'VITESSE', Order.ATOMIC);
+
+  var code;
+  code = '    case STATE_' + String(generator.sm_state_number) + ' :\n';
+  code +='        if (onEntry()) {\n';
+  code +='          Application.m_servos.CommandePositionVitesse(' + index_servo + ', ' + pos + ', ' + speed + ');\n';
+  code +='        }\n';
+  code +='        gotoState(STATE_' + String(generator.sm_state_number+1) + ');\n';
+  code +='        if (onExit()) {\n';
+  code +='        }\n';
+  code +='        break;';
+  generator.sm_state_number = generator.sm_state_number + 1;
+  return code + '\n';
+};
+
+
 
 // ... faire tous les autres blocs que l'on veut mettre à disposition
 
