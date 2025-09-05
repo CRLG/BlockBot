@@ -609,6 +609,20 @@ export const toolbox = {
             },
           },
         },
+       {
+          kind: 'block',
+          type: 'reboucler_vers_etape',
+          inputs: {
+            ETAPE: {
+              shadow: {
+                type: 'math_number',
+                fields: {
+                  NUM: 1,
+                },
+              },
+            },
+          },
+        },
         {
           kind: 'block',
           type: 'valeur_si_couleur_equipe',
@@ -693,7 +707,7 @@ export const toolbox = {
               shadow: {
                 type: 'math_number',
                 fields: {
-                  NUM: 0,
+                  NUM: 1,
                 },
               },
             },
@@ -709,7 +723,7 @@ export const toolbox = {
               shadow: {
                 type: 'math_number',
                 fields: {
-                  NUM: 10,
+                  NUM: 9999,
                 },
               },
             },

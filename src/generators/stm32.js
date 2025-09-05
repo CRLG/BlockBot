@@ -645,6 +645,7 @@ stm32Generator.forBlock['description_debutant'] = function(block, generator) {
   generator.sm_state_number = 1;  // RAZ de l'indice du numéro d'état à chaque nouveau bloc SM
   const sm_name = generator.valueToCode(block, 'NOM_SM', Order.NONE) || "''";
   var code = '// _____________________________________\n';
+  code += '#define '+ sm_name + '_Generated\n';
   code+= 'void ' + sm_name + '::step()\n';
   code+= '{\n';
   code+= '    switch (m_state)\n';
@@ -689,6 +690,20 @@ stm32Generator.forBlock['arreter_tache'] = function(block, generator) {
   code += '          Application.m_modelia.m_' + sm_name.toLowerCase() + '.stop();\n';
   code +='        }\n';
   code +='        gotoState(STATE_' + String(generator.sm_state_number+1) + ');\n';
+  code +='        if (onExit()) { }\n';
+  code +='        break;\n';
+  generator.sm_state_number = generator.sm_state_number + 1;
+  return code;
+};
+
+// _____________________________________________________________________
+stm32Generator.forBlock['reboucler_vers_etape'] = function(block, generator) {
+  const etape = generator.valueToCode(block, 'ETAPE', Order.NONE) || "''";
+  let code;
+  code = '    case STATE_' + String(generator.sm_state_number) + ' :\n';
+  code +='        if (onEntry()) {\n';
+  code +='        }\n';
+  code +='        gotoState(STATE_' + etape + ');\n';
   code +='        if (onExit()) { }\n';
   code +='        break;\n';
   generator.sm_state_number = generator.sm_state_number + 1;

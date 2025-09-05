@@ -135,6 +135,23 @@ const arreter_tache = {
   "helpUrl": ""
 };
 
+const reboucler_vers_etape = {
+  "type": "reboucler_vers_etape",
+  "message0": "Reboucler à l'étape %1",
+  "args0": [
+    {
+      "type": "input_value",
+      "name": "ETAPE"
+    }
+  ],
+  "inputsInline": true,
+  "previousStatement": null,
+  "nextStatement": null,
+  "colour": 1,
+  "tooltip": "Reboucler à une étape",
+  "helpUrl": ""
+};
+
 // ___________________________________________
 const deplacement_robot_lineaire = {
   "type": "deplacement_robot_lineaire",
@@ -425,6 +442,7 @@ export const blocks_robot_debutant = Blockly.common.createBlockDefinitionsFromJs
   nom_tache_sm,
   activer_tache,
   arreter_tache,
+  reboucler_vers_etape,
   deplacement_robot_lineaire,
   avancer,
   reculer,
