@@ -147,7 +147,7 @@ const reboucler_vers_etape = {
   "inputsInline": true,
   "previousStatement": null,
   "nextStatement": null,
-  "colour": 1,
+  "colour": 285,
   "tooltip": "Reboucler à une étape",
   "helpUrl": ""
 };
