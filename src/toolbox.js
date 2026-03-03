@@ -542,10 +542,6 @@ export const toolbox = {
           kind: 'block',
           type: 'robot_position',
         },
-        {
-        	kind: 'block',
-        	type: 'deplacement_x_y_teta',
-        	},
       ],
     },
     {
@@ -574,6 +570,7 @@ export const toolbox = {
     {
       kind: 'category',
       name: 'Robot (débutant)',
+      toolboxitemid: 'cat_robot_debutant',
       categorystyle: 'text_category',
       contents: [
         {
@@ -746,6 +743,26 @@ export const toolbox = {
         {
           kind: 'block',
           type: 'attendre_condition',
+        },
+      ],
+    },
+    {
+      kind: 'category',
+      name: 'Robot (expert)',
+      toolboxitemid: 'cat_robot_expert',
+      categorystyle: 'text_category',
+      contents: [
+        {
+          kind: 'block',
+          type: 'strategie_expert',
+        },
+        {
+          kind: 'block',
+          type: 'etat_expert',
+        },
+		 		{
+          kind: 'block',
+          type: 'attendre_expert',
         },
       ],
     },

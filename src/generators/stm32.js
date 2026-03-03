@@ -616,27 +616,6 @@ stm32Generator.forBlock['active_inhibe_detection_obstacle'] = function(block, ge
   return code + '\n';
 };
 
-stm32Generator.forBlock['deplacement_x_y_teta'] = function(block, generator)  {
-  var stateName = block.getFieldValue('NOM');
-
-  var nextBlock = block.getNextBlock();
-  var nextStateName = 'FIN';
-  if (nextBlock && nextBlock.type === 'deplacement_x_y_teta') {
-    nextStateName = nextBlock.getFieldValue('NOM') || 'FIN';
-  }
-  
-  var argument1 = generator.valueToCode(block, 'X', Order.ASSIGNMENT) || '0';
-  var argument2 = generator.valueToCode(block, 'Y', Order.ASSIGNMENT) || '0';
-  var argument3 = generator.valueToCode(block, 'ANGLE', Order.ASSIGNMENT) || '0';
-
-
-var code = '\ncase ' + stateName + ' :\n\tif (onEntry()) {\n\t\tApplication.m_detection_obstacles.inhibeDetection(true);' +
-	'\n\t\toutputs()->CommandeMouvementXY_TETA_sym(' + argument1 + ',' + argument2 + ',' + argument3 + ');/*valeur x mesurée en réelle avec la dérive*/\n\t}' +
-	'\n\tgotoStateIfConvergence(' + nextStateName + ',7000);\n\tif (onExit()) {  }\n\tbreak;';
-
-  return code;
-};
-
 // ==========================================================================
 //      ROBOT DEBUTANT
 // ==========================================================================
@@ -912,5 +891,87 @@ stm32Generator.forBlock['commande_servo_position_vitesse'] = function(block, gen
 
 // ... faire tous les autres blocs que l'on veut mettre à disposition
 
+// ==========================================================================
+//      ROBOT EXPERT
+// ==========================================================================
+
+/*stm32Generator.forBlock['strategie_expert'] = function(block, generator) {
+  
+  var code = '....';
+
+  return code;
+};
+
+stm32Generator.forBlock['etat_expert'] = function(block, generator)  {
+  
+  var code = '....';
+
+  return code;
+};
+*/
+
+stm32Generator.forBlock['strategie_expert'] = function(block, generator) {
+  const sm_name = block.getFieldValue('STRATEGIE_SM');
+  var code = '// _____________________________________\n';
+  code += generator.statementToCode(block, 'DESCR');
+  code += '\n// ___________________________\n';
+	code += 'case FIN_MISSION :\n';
+	code += '\t	m_succes = true;\n';
+	code += '\t	m_score = m_max_score;\n';
+	code += '\t	stop();\n';
+	code += '\t	break;\n';
+
+
+  return '\n' + code;
+};
+
+stm32Generator.forBlock['etat_expert'] = function(block, generator)  {
+  var stateName = block.getFieldValue('NOM');
+
+  var nextBlock = block.getNextBlock();
+  var nextStateName = 'FIN_MISSION';
+  if (nextBlock && nextBlock.type === 'etat_expert') {
+    nextStateName = nextBlock.getFieldValue('NOM') || 'FIN_MISSION';
+  }
+  
+  let code;
+
+	code = 	'\ncase ' + stateName + ' :\n';
+	code += '\tif (onEntry()) {\n';
+	code += '\t  //Action en entrée de l état\n';
+	code += '\t  ' + generator.statementToCode(block, 'DESCR') + '\n';
+	code += '\t}\n';
+	code += '\t' + generator.statementToCode(block, 'TRANS') + '\n';
+	code += '\tif (onExit()) {//TODO : pouvoir intégrer des actions en sortie d état}\n';
+	code += '\tbreak;\n';
+
+  return code;
+};
+
+// _____________________________________________________________________
+stm32Generator.forBlock['attendre_expert'] = function(block, generator) {
+  
+  //Extraction des valeurs du block
+  var unites = block.getFieldValue('UNITES');
+  var prochain_etat=block.getFieldValue('NEXT_STATE');
+  var value = generator.valueToCode(block, 'VALEUR', Order.ATOMIC);
+  let code;
+
+	//Création et conversion du temps d'attente de la tempo
+  var valeur_avec_conversion;
+  if (unites == 'SEC')
+  {
+		valeur_avec_conversion = '1000 * ' + value; 
+  }
+  else
+  {
+    valeur_avec_conversion = value;
+  }
+  
+  //Génération du code
+  code ='gotoStateAfter(' + prochain_etat + ', ' + valeur_avec_conversion + ');\n';
+     
+  return code + '\n';
+};
 
 

@@ -1,27 +1,43 @@
 <!doctype html>
 <html>
-  <head>
-    <meta charset="utf-8" />
-    <title>Blockly Robot App</title>
-  </head>
-  <body>
-    <div id="pageContainer">
-      <div id="outputPane">
-        <pre id="generatedCode"><code></code></pre>
-        <div id="output"></div>
-      </div>
-      <div id="zoneCentrale">
-      	<div id="buttons">
-	    <button id="saveButton">💾 Sauvegarder</button>
-	    <button id="loadButton">🔄 Recharger</button>
-	    <input type="file" id="fileInput" accept=".json">
-	    <button id="stm32generator">STM32Gen</button>	    	    
-	    <button id="arduinogenerator">ArduinoGen</button>	    	    	    
-	    <button id="exportgenerated">💾 Export</button>
-	    <button id="send2Qt">Send2Qt</button>
-  	</div>
-      <div id="blocklyDiv"></div>
-      </div>
-    </div>
-  </body>
+	<head>
+		<meta charset="utf-8" />
+		
+		<!-- fichier à intégrer pour pouvoir bénéficier du lien avec une application Qt -->
+		<script src="qrc:///qtwebchannel/qwebchannel.js"></script>
+
+		<title>Blockly Robot App</title>
+
+	</head>
+	
+	<body>
+		<div id="pageContainer">
+		
+			<!-- zone d'affichage du code généré par BlockBot -->
+			<div id="outputPane">
+				<pre id="generatedCode"><code></code></pre>
+				<div id="output"></div>
+			</div>
+			
+			<!-- zone centrale de travail -->
+			<div id="zoneCentrale">
+			
+				<!-- zone pour intégrer des boutons dans le monde "javascript" de blockly -->
+				<!--
+				<div id="buttons">
+					<button id="saveButton">💾 Sauvegarder</button>
+					<button id="loadButton">🔄 Recharger</button>
+					<input type="file" id="fileInput" accept=".json">
+					<button id="stm32generator">STM32Gen</button>	    	    
+					<button id="arduinogenerator">ArduinoGen</button>	    	    	    
+					<button id="exportgenerated">💾 Export</button>
+				</div>
+				-->
+				
+				<!-- espace de travail avec les blocks, la toolbox, etc... -->
+				<div id="blocklyDiv"></div>
+				
+			</div>
+		</div>
+	</body>
 </html>

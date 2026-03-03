@@ -2,36 +2,109 @@ import * as Blockly from 'blockly/core';
 
 // Fonction de téléchargement du fichier JSON
 export const downloadWorkspace = function (workspace){
-const state = Blockly.serialization.workspaces.save(workspace);
-const jsonString = JSON.stringify(state, null, 2);
-const blob = new Blob([jsonString], { type: 'application/json' });
-const url = URL.createObjectURL(blob);
 
-const a = document.createElement('a');
-a.href = url;
-a.download = 'blockly_workspace.json';
-document.body.appendChild(a);
-a.click();
-document.body.removeChild(a);
-URL.revokeObjectURL(url);
+	//Sérialisation standard de Blockly	
+	const state = Blockly.serialization.workspaces.save(workspace);
+ 
+  //Ajoute à l'objet sérialisé le cache personnalisé et le compteur pour gérer les noms des états
+  state.customNameCache = workspace.customNameCache || {};
+  state.compteur_etat = workspace.compteur_etat || 0;
+
+	//Formattage en JSON prêt à être lié à un lien pour être téléchargé au niveau navigateur
+	const jsonString = JSON.stringify(state, null, 2);
+	const blob = new Blob([jsonString], { type: 'application/json' });
+	const url = URL.createObjectURL(blob);
+
+	//création du lien
+	const a = document.createElement('a');
+	a.href = url;
+	a.download = 'blockly_workspace.json';
+	
+	//association du lien à l'objet JSON et simulation d'un click
+	document.body.appendChild(a);
+	a.click();
+	
+	//Nettoyage
+	document.body.removeChild(a);
+	URL.revokeObjectURL(url);
 };
 
+
+//fonction conservée pour compatibilité de blockly avec firefox and co
+export const uploadWorkspace = function(workspace, fic){
+		//si le chemin de la sauvegarde n'a pas été choisi au préalable par l'utilisateur on ne fait rien
+    if (!fic) return;
+		//Création du lecteur de fichier
+		const reader = new FileReader();
+	
+		//Association d'une fonction d'extraction au lancement du lecteur de fichier
+    reader.onload = function(e) {
+        try {
+        		//Analyse du fichier de sauvegarde (qui est au format JSON)
+            const json = JSON.parse(e.target.result);
+            //fonction de chragement
+            restoreWorkspaceFromJson(json);
+        }
+        catch(err){
+            alert("Erreur JSON : " + err.message);
+        }
+    };
+
+    reader.readAsText(fic);
+};
 // Fonction de chargement depuis un fichier JSON
-export const uploadWorkspace = function (workspace,fic){
+export function restoreWorkspaceFromJson(workspace, json){
 
-if (!fic) return;
-//console.log(filename);
-const reader = new FileReader();
-reader.onload = function(e) {
-try {
-  const json = JSON.parse(e.target.result);
-  workspace.clear();
-  Blockly.serialization.workspaces.load(json, workspace);
-  alert('Espace de travail rechargé avec succès.');
-} catch (err) {
-  alert('Erreur lors du chargement du fichier JSON : ' + err.message);
+    //avant toute chose on nettoie le workspace
+		workspace.clear();
+		//on nettoie également le cache
+    workspace.customNameCache = {};
+    workspace.compteur_etat = 0;
+    
+    console.log("Restauration du workspace");
+		console.log("Cache après effacement du workspace =>");
+		console.log(workspace.customNameCache);
+
+		// Marquer le workspace comme en cours de chargement
+    workspace.isLoading = true;
+    //on bloque les événements Blockly pour ne pas avoir d'actions parasites à la restauration de la sauvegarde
+    Blockly.Events.disable();
+
+		//Restaurer le cache des noms d'état avant de charger les blocs
+    workspace.customNameCache = json.customNameCache || {};
+    workspace.compteur_etat = json.compteur_etat || 0;
+    
+    console.log("Cache après restauration du cache provenant du json deserialisé =>");
+		console.log(workspace.customNameCache);
+
+		//Recharger les blocs
+    Blockly.serialization.workspaces.load(json, workspace);
+
+		// Traitement post-chargement pour les blocs qui ont besoin de vérification
+	  setTimeout(() => {
+	    const allBlocks = workspace.getAllBlocks();
+	    allBlocks.forEach(block => {
+	      if (block.needsNameCheck) {
+	        const nomRestaure = block.getFieldValue("NOM");
+	        console.log("Vérification post-chargement - Bloc ID:", block.id, "Nom:", nomRestaure);
+	        
+	        if (nomRestaure && nomRestaure !== "") {
+	          console.log("Nom restauré détecté, pas de nouveau nom créé");
+	          // Le cache est déjà bon, juste marquer comme traité
+	          block.needsNameCheck = false;
+	        }
+	      }
+	    });
+	    
+	    // Marquer le workspace comme chargé
+	    workspace.isLoading = false;
+	    
+	    console.log("Cache après chargement des blocs =>");
+	    console.log(workspace.customNameCache);
+	    
+	    // Réactiver les événements Blockly
+	    Blockly.Events.enable();
+	    
+	    alert('Espace de travail rechargé avec succès.');
+	  }, 50);
 }
-};
-reader.readAsText(fic);
-};
-
