@@ -137,18 +137,17 @@ const runCode = () => {
       const code = arduinoGenerator.workspaceToCode(ws);
       codeDiv.innerText = code;
   }
-
-  //outputDiv.innerHTML = '';
-
-  //eval(code);
 };
 
-// Load the initial state from storage and run the code.
+//Charge l'état initial du workspace à partir du stockage par défaut s'il existe
+// et regénère le code
 load(ws);
 runCode();
 
-
-//Ajoute le canal de communication avec LaBotBox
+/**
+ * FONCTION POUR LABOTBOX
+ * Ajoute le canal de communication avec LaBotBox
+ */
 document.addEventListener('DOMContentLoaded', function() {
     // la connection avec le pont de communication se fait avec un petit délai pour 
     // laisser le temps à BlockBot d'intégrer toutes les fonctions du fichier qwebchannel.js (cf le fichier index.html)
@@ -178,7 +177,7 @@ document.addEventListener('DOMContentLoaded', function() {
 												//gestion de la restauration de projet
 												case 'load_project':
 													const json = JSON.parse(params);
-													qtLog(ws.compteur_etat);
+													//qtLog(ws.compteur_etat);
             							return restoreWorkspaceFromJson(ws, json);
 										}
 								});
@@ -187,23 +186,58 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 100); // Délai de 100ms
 });
 
-//Fonction de debug pour le log au format "chaîne de caractères" (vers la sortie standard de LaBotBox)
+/**
+ * FONCTION POUR LABOTBOX
+ * Fonction de debug pour le log au format "chaîne de caractères" (vers la sortie standard de LaBotBox)
+ */
 function qtLog(message) {
     if (BlockBotLab && BlockBotLab.logJS) {
         BlockBotLab.logJS(message);
     }
 }
 
-/*
-saveButton.addEventListener('click', () => {
-  downloadWorkspace(ws);
+/**
+ * Listener: Auto-nommage des blocs etat_expert créés par l'utilisateur
+ */
+ws.addChangeListener((e) => {
+	// Uniquement les créations réelles (pas les chargements depuis JSON)
+  if (e.type !== Blockly.Events.BLOCK_CREATE) return;
+
+  const bloc = ws.getBlockById(e.blockId);
+  /*
+  var msg='[auto-nom] BLOCK_CREATE reçu, blockId:'+ e.blockId;
+      msg+=' bloc trouvé:', !!bloc;
+      msg+=' type:', bloc?.type;
+      msg+=' NOM:', bloc?.getFieldValue('NOM');
+  qtLog(msg);
+  */
+
+  if (!bloc || bloc.type !== 'etat_expert') return;
+
+  const nomActuel = bloc.getFieldValue('NOM');
+  /*
+  msg='[auto-nom] nomActuel:'+JSON.stringify(nomActuel);
+  qtLog(msg);
+  */
+
+	// Si NOM déjà renseigné → restauration depuis JSON, on ne touche pas
+  if (nomActuel && nomActuel !== '') return;
+
+	// Compter les etat_expert présents (ce bloc inclus)
+  const nbEtats = ws.getAllBlocks(false).filter(b => b.type === 'etat_expert').length;
+  /*
+  msg='[auto-nom] nbEtats:'+ nbEtats;
+  qtLog(msg);
+  */
+
+	//Auto-nommage
+  bloc.setFieldValue('Etat_' + nbEtats, 'NOM');
+  /*
+  msg='[auto-nom] nom appliqué:'+ bloc.getFieldValue('NOM');
+  qtLog(msg);
+  */
 });
 
-loadButton.addEventListener('click', () => {
-	const fic=savedFile.files[0];
-  uploadWorkspace(ws,fic);
-});
-*/
 // --------------------------------------------------
 // Choix du générateur de code par les boutons dédiés
 /*
@@ -217,14 +251,6 @@ arduinogenerator.addEventListener('click', () => {
     runCode();  // met à jour le code généré avec la nouvelle cible
 });
 */
-// --------------------------------------------------
-// Callback du bouton "Export"
-// Exporte le code généré dans un fichier
-/*
-exportgenerated.addEventListener('click', () => {
-    saveTextFile("FichierCodeExport.cpp", codeDiv.innerText); // TODO : mettre le bon nom du fichier de sortie
-});
-*/
 
 // --------------------------------------------------
 // Every time the workspace changes state, save the changes to storage.
@@ -233,8 +259,10 @@ ws.addChangeListener((e) => {
   // No need to save after one of these.
   if (e.isUiEvent) return;
   
-  //qtLog(workspace.compteur_etat);
-  //qtLog(workspace.customNameCache);
+  /*
+  qtLog(workspace.compteur_etat);
+  qtLog(workspace.customNameCache);
+  */
   
   save(ws);
 });
@@ -254,22 +282,16 @@ ws.addChangeListener((e) => {
   runCode();
 });
 
-/*
+
 // --------------------------------------------------
 // Envoi du code vers Qt
 // --------------------------------------------------
 ////////////////////////////////////////////////////
-function sendGeneratedCode() {
-    const code = stm32Generator.workspaceToCode(ws);
-    if (BlockBotLab && BlockBotLab.processData) {
-        BlockBotLab.processData(code);
-    }
-}
-*/
-// --------------------------------------------------
-// Envoi du code vers Qt
-// --------------------------------------------------
-////////////////////////////////////////////////////
+
+/**
+ * FONCTION POUR LABOTBOX
+ * Envoie le code généré à LaBotBox qui se charge de créer les fichiers pour Modelia
+ */
 function sendGeneratedCode() {
     const code = stm32Generator.workspaceToCode(ws);
     
@@ -307,42 +329,5 @@ function sendGeneratedCode() {
         // Envoyer le code, le nom de la stratégie ET la liste des états
         BlockBotLab.processData(code, nomStrategie, listeEtatsJSON);
     }
-}
-
-// --------------------------------------------------
-// Sauvegarde du code généré dans un fichier texte
-// --------------------------------------------------
-////////////////////////////////////////////////////
-/**
- * writeTextFile write data to file on hard drive
- * @param  string  filename   The name of the file to generate
- * @param  sring   data     Data to be written
- */
- /*
-function saveTextFile(filename, data) {
-    const blob = new Blob([data], {type: 'text/plain;charset=utf-8'});
-    if(window.navigator.msSaveOrOpenBlob) {
-        window.navigator.msSaveBlob(blob, filename);
-    }
-    else{
-        const elem = window.document.createElement('a');
-        elem.href = window.URL.createObjectURL(blob);
-        elem.download = filename;
-        document.body.appendChild(elem);
-        elem.click();
-        document.body.removeChild(elem);
-    }
-}
-*/
-
-function setupWorkspaceClearListener(workspace) {
-  workspace.addChangeListener(function(event) {
-    if (event.type === Blockly.Events.FINISHED_LOADING && 
-        workspace.getAllBlocks().length === 0) {
-      // Le workspace a été vidé
-      workspace.compteur_etat = 0;
-      workspace.customNameCache = {};
-    }
-  });
 }
 

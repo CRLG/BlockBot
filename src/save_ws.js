@@ -1,5 +1,6 @@
 import * as Blockly from 'blockly/core';
 
+/*
 // Fonction de téléchargement du fichier JSON
 export const downloadWorkspace = function (workspace){
 
@@ -108,3 +109,46 @@ export function restoreWorkspaceFromJson(workspace, json){
 	    alert('Espace de travail rechargé avec succès.');
 	  }, 50);
 }
+*/
+
+// Fonction de téléchargement du fichier JSON
+export const downloadWorkspace = function (workspace) {
+    // Sérialisation standard de Blockly (contient déjà tous les champs NOM des blocs)
+    const state = Blockly.serialization.workspaces.save(workspace);
+
+    const jsonString = JSON.stringify(state, null, 2);
+    const blob = new Blob([jsonString], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'blockly_workspace.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+};
+
+
+// Fonction de chargement depuis un fichier JSON
+export function restoreWorkspaceFromJson(workspace, json) {
+    workspace.clear();
+    Blockly.serialization.workspaces.load(json, workspace);
+    alert('Espace de travail rechargé avec succès.');
+}
+
+
+// Fonction conservée pour compatibilité navigateur (Firefox, etc.)
+export const uploadWorkspace = function (workspace, fic) {
+    if (!fic) return;
+    const reader = new FileReader();
+    reader.onload = function (e) {
+        try {
+            const json = JSON.parse(e.target.result);
+            restoreWorkspaceFromJson(workspace, json);
+        } catch (err) {
+            alert("Erreur JSON : " + err.message);
+        }
+    };
+    reader.readAsText(fic);
+};

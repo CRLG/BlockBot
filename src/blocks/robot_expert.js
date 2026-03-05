@@ -221,70 +221,31 @@ Blockly.Extensions.register('auto_next_state', function() {
 });
 
 
-// ================================================================
 Blockly.Extensions.register('auto_name_state', function() {
-  const nomExistant = this.getFieldValue("NOM");
-  console.log("Extension exécutée - Nom existant:", nomExistant, "ID du bloc:", this.id);
-  
-  // Marquer temporairement ce bloc comme "en attente de vérification"
-  this.needsNameCheck = true;
-  
-  // Si c'est clairement un nouveau bloc (pas de restauration en cours)
-  if (!this.workspace.isLoading && (!nomExistant || nomExistant === "")) {
-    console.log("BRANCHE NOUVEAU BLOC");
-    
-    // Initialiser le compteur dans le workspace s'il n'existe pas
-    if (!this.workspace.compteur_etat) {
-      this.workspace.compteur_etat = 0;
-    }
-    
-    // Initialiser le cache personnalisé s'il n'existe pas
-    if (!this.workspace.customNameCache) {
-      this.workspace.customNameCache = {};
-    }
-    
-    this.workspace.compteur_etat++;
-    
-    // Définir la valeur du champ caché stockant le nom d'état
-    const nomAutomatique = "Etat_" + this.workspace.compteur_etat;
-    this.setFieldValue(nomAutomatique, "NOM");
-    
-    let msg = "nom automatique créé: " + nomAutomatique;
-    console.log(msg);
-    
-    // Ajouter l'entrée dans le cache
-    this.workspace.customNameCache[this.workspace.compteur_etat] = {
-      nom: nomAutomatique,
-      blockId: this.id
-    };
-    
-    // Marquer comme traité
-    this.needsNameCheck = false;
-  }
-  
+
+  // ---- Gestion visuelle du mode "noeud" (IS_DUMMY) ----
   const COULEUR_ORIGINE_ETAT = 330;
   const COULEUR_DUMMY = '#FFD700';
-
-  /**
+	
+	/**
    * Met à jour l'apparence du bloc selon l'état de la case "noeud" (IS_DUMMY) :
    * - Jaune vif + input DESCR masqué et vidé si coché
    * - Couleur d'origine + input DESCR visible si décoché
    */
   const updateDummyMode = () => {
     const isDummy = this.getFieldValue('IS_DUMMY') === 'TRUE';
-
     // Couleur de fond
     this.setColour(isDummy ? COULEUR_DUMMY : COULEUR_ORIGINE_ETAT);
 
-    // Le header (NOM + case à cocher) reste toujours visible
+		// Le header (NOM + case à cocher) reste toujours visible
     const inputHeader = this.getInput('HEADER');
     if (inputHeader) inputHeader.setVisible(true);
 
-    // Visibilité de l'input DESCR uniquement
+		// Visibilité de l'input DESCR uniquement
     const inputDescr = this.getInput('DESCR');
     if (inputDescr) {
       if (isDummy) {
-        // Supprimer tous les blocs enfants dans DESCR avant de masquer
+      	// Supprimer tous les blocs enfants dans DESCR avant de masquer
         const connexion = inputDescr.connection;
         if (connexion && connexion.targetBlock()) {
           connexion.targetBlock().dispose(false);
@@ -292,25 +253,12 @@ Blockly.Extensions.register('auto_name_state', function() {
       }
       inputDescr.setVisible(!isDummy);
     }
-
-    // Forcer le re-rendu du bloc
-    if (this.rendered) {
-      this.render();
-    }
+		// Forcer le re-rendu du bloc
+    if (this.rendered) this.render();
   };
 
-  // Gérer la suppression du bloc pour nettoyer le cache
+	// Réagir au changement de la case IS_DUMMY ou au chargement du bloc
   this.setOnChange(function(event) {
-    if (event.type === Blockly.Events.BLOCK_DELETE && event.blockId === this.id) {
-      for (let key in this.workspace.customNameCache) {
-        if (this.workspace.customNameCache[key].blockId === this.id) {
-          delete this.workspace.customNameCache[key];
-          break;
-        }
-      }
-    }
-
-    // Réagir au changement de la case IS_DUMMY ou au chargement du bloc
     if (
       event.type === Blockly.Events.BLOCK_CREATE ||
       (event.type === Blockly.Events.BLOCK_CHANGE &&
