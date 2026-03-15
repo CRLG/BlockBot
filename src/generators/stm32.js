@@ -895,7 +895,7 @@ stm32Generator.forBlock['commande_servo_position_vitesse'] = function(block, gen
 //      ROBOT EXPERT
 // ==========================================================================
 
-/*stm32Generator.forBlock['strategie_expert'] = function(block, generator) {
+/*stm32Generator.forBlock['state_machine_expert'] = function(block, generator) {
   
   var code = '....';
 
@@ -910,8 +910,8 @@ stm32Generator.forBlock['etat_expert'] = function(block, generator)  {
 };
 */
 
-stm32Generator.forBlock['strategie_expert'] = function(block, generator) {
-  const sm_name = block.getFieldValue('STRATEGIE_SM');
+stm32Generator.forBlock['state_machine_expert'] = function(block, generator) {
+  const sm_name = block.getFieldValue('NOM_SM');
   var code = '// _____________________________________\n';
   code += generator.statementToCode(block, 'DESCR');
   code += '\n// ___________________________\n';
@@ -950,28 +950,100 @@ stm32Generator.forBlock['etat_expert'] = function(block, generator)  {
 
 // _____________________________________________________________________
 stm32Generator.forBlock['attendre_expert'] = function(block, generator) {
-  
   //Extraction des valeurs du block
   var unites = block.getFieldValue('UNITES');
   var prochain_etat=block.getFieldValue('NEXT_STATE');
-  var value = generator.valueToCode(block, 'VALEUR', Order.ATOMIC);
+  var value=block.getFieldValue('VALEUR');
   let code;
 
 	//Création et conversion du temps d'attente de la tempo
   var valeur_avec_conversion;
-  if (unites == 'SEC')
-  {
-		valeur_avec_conversion = '1000 * ' + value; 
-  }
-  else
-  {
-    valeur_avec_conversion = value;
-  }
+  if (unites == 'SEC') {	valeur_avec_conversion = '1000 * ' + value; }
+  else {  valeur_avec_conversion = value; }
   
   //Génération du code
   code ='gotoStateAfter(' + prochain_etat + ', ' + valeur_avec_conversion + ');\n';
-     
   return code + '\n';
 };
 
+// _____________________________________________________________________
+stm32Generator.forBlock['convergence_expert'] = function(block, generator) {
+  //Extraction des valeurs du block
+  var unites = block.getFieldValue('UNITES');
+  var prochain_etat=block.getFieldValue('NEXT_STATE');
+  var value=block.getFieldValue('VALEUR');
+  let code;
 
+	//Création et conversion du temps d'attente de la tempo
+  var valeur_avec_conversion;
+  if (unites == 'SEC') {	valeur_avec_conversion = '1000 * ' + value; }
+  else {  valeur_avec_conversion = value; }
+  
+  //Génération du code
+  code ='gotoStateIfConvergence(' + prochain_etat + ', ' + valeur_avec_conversion + ');\n';
+  return code + '\n';
+};
+// _____________________________________________________________________
+stm32Generator.forBlock['convergence_rapide_expert'] = function(block, generator) {
+  //Extraction des valeurs du block
+  var unites = block.getFieldValue('UNITES');
+  var prochain_etat=block.getFieldValue('NEXT_STATE');
+  var value=block.getFieldValue('VALEUR');
+  let code;
+
+	//Création et conversion du temps d'attente de la tempo
+  var valeur_avec_conversion;
+  if (unites == 'SEC') {	valeur_avec_conversion = '1000 * ' + value; }
+  else {  valeur_avec_conversion = value; }
+  
+  //Génération du code
+  code ='gotoStateIfConvergenceRapide(' + prochain_etat + ', ' + valeur_avec_conversion + ');\n';
+  return code + '\n';
+};
+// _____________________________________________________________________
+stm32Generator.forBlock['set_pos'] = function(block, generator) {
+  const mode = block.getFieldValue('MODE');
+  const f1 = generator.valueToCode(block, 'VAL1', Order.NONE) || '0';
+  const f2 = generator.valueToCode(block, 'VAL2', Order.NONE) || '0';
+  const f3 = generator.valueToCode(block, 'VAL3', Order.NONE) || '0';
+  let code;
+  switch (mode) {
+    case 'XY':
+      code = 'Application.m_asservissement.CommandeMouvementXY(' + f1 + ' , ' + f2 + ');\n';
+      break;
+    case 'XYT':
+      code = 'Application.m_asservissement.CommandeMouvementXY_TETA(' + f1 + ' , ' + f2 + ' , ' + f3 + ');\n';
+      break;
+    case 'DA':
+      code = 'Application.m_asservissement.CommandeMouvementDistanceAngle(' + f1 + ' , ' + f3 + ');\n';
+      break;
+  }
+  return code + '\n';
+};
+
+// _____________________________________________________________________
+stm32Generator.forBlock['set_servo_expert'] = function(block, generator) {
+	const idServo = block.getFieldValue('SERVO_VAL');
+	const valueServo = block.getFieldValue('SERVO_POS_VAL');
+	let code;
+	code='Application.m_servos.CommandePositionVitesse(' + idServo + ',' + valueServo + ',100);';
+	return code + '\n';
+};
+
+// _____________________________________________________________________
+stm32Generator.forBlock['set_ax_expert'] = function(block, generator) {
+	const idAX = block.getFieldValue('SERVO_AX_VAL');
+	const valAX = block.getFieldValue('AX_POS_VAL');
+	let code;
+	code='Application.m_servos_ax.setPosition(' + idAX + ',' + valAX + ');';
+	return code + '\n';
+};
+
+// _____________________________________________________________________
+stm32Generator.forBlock['set_motor'] = function(block, generator) {
+	const idMotor = block.getFieldValue('MOTOR_VAL');
+	const valueMotor = block.getFieldValue('MOTOR_PWM');
+	let code;
+	code='Application.m_moteurs.CommandeVitesse(' + idMotor + ',' + valueMotor + ');';
+	return code + '\n';
+};

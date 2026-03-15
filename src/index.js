@@ -1,7 +1,10 @@
 /**
- * @license
- * Copyright 2023 Google LLC
- * SPDX-License-Identifier: Apache-2.0
+ * Original work Copyright Google LLC
+ * Licensed under the Apache License, Version 2.0
+ *
+ * Modifications Copyright 2026 CRLG
+ *
+ * This file includes modifications made by CRLG.
  */
 
 import * as Blockly from 'blockly';
@@ -16,30 +19,44 @@ import {save, load} from './serialization';
 import {downloadWorkspace, uploadWorkspace, restoreWorkspaceFromJson} from './save_ws';
 import {toolbox} from './toolbox';
 import './index.css';
+import {initContextFromLaBotBox} from './blocks/robot_expert';
 
-// Register the blocks and generator with Blockly
+//########################################################################
+//Enregistrement des blocks (avec leur générateur) dans BlockBot
 Blockly.common.defineBlocks(blocks);
 Blockly.common.defineBlocks(blocks_robot_position);
 Blockly.common.defineBlocks(blocks_match);
 Blockly.common.defineBlocks(blocks_robot_debutant);
 Blockly.common.defineBlocks(blocks_robot_expert);
 
-// Autorise l'ajout de commentaires par clic droit sur la page
+//Autorise l'ajout de commentaires par clic droit sur la page
 Blockly.ContextMenuItems.registerCommentOptions();
 
+//Variable qui va récupérer l'instanciation du QWebChannel
+//un Objet QWebChannel est ce qui permet de faire le pont entre une appli C++ Qt, LaBotBox par exemple,
+//et le monde Web comme ce javascript de BlockBot ;-)
 var BlockBotLab = null;
 
-// Set up UI elements and inject Blockly
+//########################################################################
+// Récupération des éléments d'affichage
 const codeDiv = document.getElementById('generatedCode').firstChild;
 const outputDiv = document.getElementById('output');
 const blocklyDiv = document.getElementById('blocklyDiv');
-/*
-const buttonsDiv = document.getElementById('buttons');
-const saveButton = document.getElementById('saveButton');
-const loadButton = document.getElementById('loadButton');
-const savedFile =document.getElementById('fileInput');
-*/
-const ws = Blockly.inject(blocklyDiv, 
+
+//La toolbox contient 2 catégories de blocks respectivement accessibles par les débutants et les experts du club
+//Selon un mode (choisi dans LaBotBox) une des 2 catégories sera masquée à l'affichage,
+//ce qui impose certains mécanismes particuliers comme ce qui suit ==>
+//
+// Snapshot JSON de la toolbox pris avant Blockly.inject() :
+// garantit une définition vierge de la toolbox pour tous les appels ultérieurs à setModeAffichage().
+// Blockly transforme l'objet toolbox lors du traitement des shadow blocks (blocks numériques contenus par défaut lors de la création de certains blocks)
+// en ajoutant leur identifiant ce qui, sans protection avec un Snapshot, rendrait les copies ultérieures incohérentes avec la toolbox d'origine.
+const toolboxJson = JSON.stringify(toolbox);
+
+//########################################################################
+//Injection de Blockly et des fonctionnalités choisies (grille, poubelle et zoom)
+//dans un workspace qui sera utilisé par la suite.
+const ws = Blockly.inject(blocklyDiv,
         {toolbox,
             grid:				// Affiche la grille
                 {spacing: 20,
@@ -56,61 +73,76 @@ const ws = Blockly.inject(blocklyDiv,
                 pinch: true},
             trashcan: true      // Active la pouvelle
         });
-        
+
+//########################################################################
+//Choix du langage pour la génération du code
+//pour l'instant seul le STM32 est en cours d'implémentation        
 const GeneratorType = {
   ARDUINO_GENERATOR: 'ARDUINO_GENERATOR',
   STM32_GENERATOR: 'STM32_GENERATOR'
 };
 var generator_type = GeneratorType.STM32_GENERATOR;
 
-// --------------------------------------------------
-// Gestion de l'affichage des catégories débutant / expert
-// --------------------------------------------------
-// La méthode hideItem/showItem n'existe pas dans toutes les versions de
-// Blockly. La solution universelle est de reconstruire la toolbox en
-// filtrant les catégories via ws.updateToolbox(), en s'appuyant sur le
-// champ toolboxitemid présent dans toolbox.js.
-// --------------------------------------------------
-
+//########################################################################
 /**
+ * Gestion de l'affichage des catégories débutant / expert
+ *
  * Reconstruit la toolbox en incluant ou excluant les catégories
  * identifiées par leur toolboxitemid.
  *
+ * Schématiquement:
  * mode : "débutant" → affiche 'cat_robot_debutant', masque 'cat_robot_expert'
  * mode : "expert"   → affiche 'cat_robot_expert',   masque 'cat_robot_debutant'
+ *
+ * Explication technique pour la suite:
+ * La méthode hideItem/showItem n'existe pas dans toutes les versions de
+ * Blockly. La solution universelle est de reconstruire la toolbox en
+ * filtrant les catégories via ws.updateToolbox(), en s'appuyant sur le
+ * champ toolboxitemid présent dans toolbox.js.
  */
 function setModeAffichage(mode) {
-  const estDebutant = (mode === 'débutant');
+  // LaBotBox envoie "debutant"/"expert" (sans accent) ; l'appel interne
+  // utilise "débutant" (avec accent). Les deux formes sont acceptées.
+  const estDebutant = (mode === 'débutant' || mode === 'debutant');
 
   // IDs à masquer selon le mode
   const idsAMasquer = estDebutant
     ? ['cat_robot_expert']
     : ['cat_robot_debutant'];
 
-  // Copie profonde de la toolbox d'origine pour ne pas la muter
-  const toolboxFiltree = JSON.parse(JSON.stringify(toolbox));
+  // Copie vierge depuis le snapshot pris avant inject() — jamais transformée par Blockly
+  const toolboxFiltree = JSON.parse(toolboxJson);
 
+	//filtrage de la toolbox
   toolboxFiltree.contents = toolboxFiltree.contents.filter(
     item => !idsAMasquer.includes(item.toolboxitemid)
   );
 
+	//mise à jour du workspace avec la toolbox filtrée
   ws.updateToolbox(toolboxFiltree);
 }
 
-// Initialisation au démarrage : mode débutant par défaut.
-// updateToolbox() est disponible dès que ws existe, pas besoin
-// d'attendre un événement particulier — on appelle directement
-// après load(ws) + runCode() via un listener one-shot.
+//########################################################################
+/**
+ * Initialisation au démarrage : mode débutant par défaut.
+ *
+ * updateToolbox() est disponible dès que ws existe, pas besoin
+ * d'attendre un événement particulier — on appelle directement
+ * après load(ws) + runCode() via un listener one-shot.
+ */
 (function() {
   let modeInitialise = false;
 
+	// Cas initial: on initialise en mode débutant
+	//attention à conserver la cohérence de l'initialisation du combobox dans LaBotBox
   const initMode = () => {
     if (modeInitialise) return;
     modeInitialise = true;
     setModeAffichage('débutant');
   };
 
-  // Cas 1 : workspace avec sauvegarde → FINISHED_LOADING garanti
+  // Cas 1 : workspace avec sauvegarde → le signal FINISHED_LOADING est garanti
+  // on peut donc déclencher une action sur l'événement
   const onFinishedLoading = (e) => {
     if (e.type === Blockly.Events.FINISHED_LOADING) {
       ws.removeChangeListener(onFinishedLoading);
@@ -119,15 +151,18 @@ function setModeAffichage(mode) {
   };
   ws.addChangeListener(onFinishedLoading);
 
-  // Cas 2 : workspace vide (premier lancement) → pas de FINISHED_LOADING,
+  // Cas 2 : workspace vide (premier lancement) → pas de signal FINISHED_LOADING,
   // mais updateToolbox() est utilisable dès le prochain tick du navigateur.
   requestAnimationFrame(initMode);
 })();
 
-
-// This function resets the code and output divs, shows the
-// generated code from the workspace, and evals the code.
-// In a real application, you probably shouldn't use `eval`.
+//########################################################################
+/**
+ * Génération du code
+ *
+ * Cette fonction efface le code généré et les affichages
+ * montrant ce code dans le workspace et regénère le code dans la foulée.
+ */
 const runCode = () => {
   if (generator_type === GeneratorType.STM32_GENERATOR) {
       const code = stm32Generator.workspaceToCode(ws);
@@ -139,11 +174,13 @@ const runCode = () => {
   }
 };
 
+//########################################################################
 //Charge l'état initial du workspace à partir du stockage par défaut s'il existe
 // et regénère le code
 load(ws);
 runCode();
 
+//########################################################################
 /**
  * FONCTION POUR LABOTBOX
  * Ajoute le canal de communication avec LaBotBox
@@ -171,23 +208,34 @@ document.addEventListener('DOMContentLoaded', function() {
 														
 												//gestion de la sauvegarde du projet
 												case 'save_project':
-													//qtLog('prise en compte demande sauvegarde');
 													return downloadWorkspace(ws);
 													
 												//gestion de la restauration de projet
 												case 'load_project':
 													const json = JSON.parse(params);
-													//qtLog(ws.compteur_etat);
             							return restoreWorkspaceFromJson(ws, json);
+            						
+            						//gestion de l'enrichissement de contexte (pour les listes défilantes des blocks)	
+            						case 'servos':
+												case 'moteurs':
+												case 'state_machine':
+												case 'values_servos':
+												case 'servos_ax':
+												case 'values_servos_ax':
+												case 'set_bot_state':
+														return initContextFromLaBotBox({ [command]: JSON.parse(params) });
 										}
 								});
             });
         }
-    }, 100); // Délai de 100ms
+    }, 100); // Délai de 100ms pour éviter l'écrasement des différents ordres
 });
 
+//########################################################################
 /**
  * FONCTION POUR LABOTBOX
+ * Affichage de debug
+ *
  * Fonction de debug pour le log au format "chaîne de caractères" (vers la sortie standard de LaBotBox)
  */
 function qtLog(message) {
@@ -195,79 +243,35 @@ function qtLog(message) {
         BlockBotLab.logJS(message);
     }
 }
+//on rend la fonction accessible aux autres fichiers .js de blockly pour le debuguage
+//à ajouter en tête de fichier pour en profiter ==>
+//const log = (msg) => window.qtLog?.(String(msg));
+//il faut ensuite juste utiliser log()
+window.qtLog = qtLog;
 
+//########################################################################
+// TODO: pour l'instant LaBotBox nettoie le cache à son démarrage, à voir si on conserve ce qui suit
 /**
- * Listener: Auto-nommage des blocs etat_expert créés par l'utilisateur
+ * Sauvegarde automatique du workspace
+ *
+ * À chaque changement d'état du workspace on enregistrez les modifications dans le stockage par défaut (cache).
+ * Bref on appelle save() sur événement
  */
-ws.addChangeListener((e) => {
-	// Uniquement les créations réelles (pas les chargements depuis JSON)
-  if (e.type !== Blockly.Events.BLOCK_CREATE) return;
-
-  const bloc = ws.getBlockById(e.blockId);
-  /*
-  var msg='[auto-nom] BLOCK_CREATE reçu, blockId:'+ e.blockId;
-      msg+=' bloc trouvé:', !!bloc;
-      msg+=' type:', bloc?.type;
-      msg+=' NOM:', bloc?.getFieldValue('NOM');
-  qtLog(msg);
-  */
-
-  if (!bloc || bloc.type !== 'etat_expert') return;
-
-  const nomActuel = bloc.getFieldValue('NOM');
-  /*
-  msg='[auto-nom] nomActuel:'+JSON.stringify(nomActuel);
-  qtLog(msg);
-  */
-
-	// Si NOM déjà renseigné → restauration depuis JSON, on ne touche pas
-  if (nomActuel && nomActuel !== '') return;
-
-	// Compter les etat_expert présents (ce bloc inclus)
-  const nbEtats = ws.getAllBlocks(false).filter(b => b.type === 'etat_expert').length;
-  /*
-  msg='[auto-nom] nbEtats:'+ nbEtats;
-  qtLog(msg);
-  */
-
-	//Auto-nommage
-  bloc.setFieldValue('Etat_' + nbEtats, 'NOM');
-  /*
-  msg='[auto-nom] nom appliqué:'+ bloc.getFieldValue('NOM');
-  qtLog(msg);
-  */
-});
-
-// --------------------------------------------------
-// Choix du générateur de code par les boutons dédiés
-/*
-stm32generator.addEventListener('click', () => {
-    generator_type = GeneratorType.STM32_GENERATOR
-    runCode();  // met à jour le code généré avec la nouvelle cible
-});
-
-arduinogenerator.addEventListener('click', () => {
-    generator_type = GeneratorType.ARDUINO_GENERATOR
-    runCode();  // met à jour le code généré avec la nouvelle cible
-});
-*/
-
-// --------------------------------------------------
-// Every time the workspace changes state, save the changes to storage.
 ws.addChangeListener((e) => {
   // UI events are things like scrolling, zooming, etc.
   // No need to save after one of these.
   if (e.isUiEvent) return;
-  
-  /*
-  qtLog(workspace.compteur_etat);
-  qtLog(workspace.customNameCache);
-  */
-  
+
   save(ws);
 });
 
-// Whenever the workspace changes meaningfully, run the code again.
+//########################################################################
+/**
+ * Regénération automatique du code
+ *
+ * A chaque fois que le workspace change de manière significative on regénère le code
+ * Bref on appelle runCode() sur événement
+ */
 ws.addChangeListener((e) => {
   // Don't run the code when the workspace finishes loading; we're
   // already running it once when the application starts.
@@ -282,14 +286,11 @@ ws.addChangeListener((e) => {
   runCode();
 });
 
-
-// --------------------------------------------------
-// Envoi du code vers Qt
-// --------------------------------------------------
-////////////////////////////////////////////////////
-
+//########################################################################
 /**
  * FONCTION POUR LABOTBOX
+ * Envoi du code vers LaBotBox
+ *
  * Envoie le code généré à LaBotBox qui se charge de créer les fichiers pour Modelia
  */
 function sendGeneratedCode() {
@@ -299,12 +300,13 @@ function sendGeneratedCode() {
     let nomStrategie = "";
     const topBlocks = ws.getTopBlocks(true);
     
+    // Identifier les débuts d'enchaînement d'états (pour récupérer les noms de tous les états)
     if (topBlocks.length > 0) {
         const premierBloc = topBlocks[0];
         
-        // Vérifier que c'est bien un bloc de type "strategie_expert"
-        if (premierBloc.type === 'strategie_expert') {
-            nomStrategie = premierBloc.getFieldValue('STRATEGIE_SM');
+        // Vérifier que c'est bien un bloc de type "state_machine_expert"
+        if (premierBloc.type === 'state_machine_expert') {
+            nomStrategie = premierBloc.getFieldValue('NOM_SM');
         }
     }
     
@@ -325,6 +327,7 @@ function sendGeneratedCode() {
     // Convertir la liste en chaîne JSON pour l'envoi
     const listeEtatsJSON = JSON.stringify(listeEtats);
     
+    //envoi le code à LaBotBox grâce au pont
     if (BlockBotLab && BlockBotLab.processData) {
         // Envoyer le code, le nom de la stratégie ET la liste des états
         BlockBotLab.processData(code, nomStrategie, listeEtatsJSON);

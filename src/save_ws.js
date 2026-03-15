@@ -1,4 +1,42 @@
 import * as Blockly from 'blockly/core';
+import { labotboxContext } from './blocks/robot_expert.js';
+
+// ================================================================
+// SERIALIZER DU CONTEXTE LABOTBOX
+// Sauvegarde et restaure les listes dynamiques avec le workspace.
+// priority: 99 garantit que le contexte est restauré AVANT les blocs,
+// ainsi les dropdowns dynamiques sont déjà alimentés à la désérialisation.
+// ================================================================
+Blockly.serialization.registry.register('labotbox_context', {
+  priority: 99,
+
+  save: (_workspace) => {
+    // Sauvegarde une copie des listes courantes du contexte
+    const snapshot = {};
+    Object.keys(labotboxContext).forEach(key => {
+      snapshot[key] = [...labotboxContext[key]];
+    });
+    return snapshot;
+  },
+
+  load: (state, _workspace) => {
+    // Restaure chaque liste présente dans la sauvegarde.
+    // La règle "liste nulle = pas d'écrasement" s'applique aussi ici :
+    // si LaBotBox a déjà injecté une liste non-vide avant la restauration,
+    // elle prime sur la sauvegarde.
+    Object.keys(labotboxContext).forEach(key => {
+      if (labotboxContext[key].length === 0 && state[key]?.length > 0) {
+        labotboxContext[key] = state[key];
+      }
+    });
+  },
+
+  clear: (_workspace) => {
+    Object.keys(labotboxContext).forEach(key => {
+      labotboxContext[key] = [];
+    });
+  }
+});
 
 /*
 // Fonction de téléchargement du fichier JSON

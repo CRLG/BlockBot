@@ -752,18 +752,25 @@ export const toolbox = {
       toolboxitemid: 'cat_robot_expert',
       categorystyle: 'text_category',
       contents: [
+        // --- Structure ---
+        { kind: 'block', type: 'state_machine_expert' },
+        { kind: 'block', type: 'etat_expert' },
+        // --- Actions ---
+        { kind: 'block', type: 'set_servo_expert' },
+        { kind: 'block', type: 'set_ax_expert' },
+        { kind: 'block', type: 'set_motor' },
         {
-          kind: 'block',
-          type: 'strategie_expert',
+          kind: 'block', type: 'set_pos',
+          inputs: {
+            VAL1: { shadow: { type: 'math_number', fields: { NUM: 0 } } },
+            VAL2: { shadow: { type: 'math_number', fields: { NUM: 0 } } },
+            VAL3: { shadow: { type: 'math_number', fields: { NUM: 0 } } },
+          },
         },
-        {
-          kind: 'block',
-          type: 'etat_expert',
-        },
-		 		{
-          kind: 'block',
-          type: 'attendre_expert',
-        },
+        // --- Transitions ---
+        { kind: 'block', type: 'attendre_expert' },
+        { kind: 'block', type: 'convergence_expert' },
+        { kind: 'block', type: 'convergence_rapide_expert' },
       ],
     },
   ],
