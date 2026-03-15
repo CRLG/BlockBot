@@ -938,11 +938,14 @@ stm32Generator.forBlock['etat_expert'] = function(block, generator)  {
 
 	code = 	'\ncase ' + stateName + ' :\n';
 	code += '\tif (onEntry()) {\n';
-	code += '\t  //Action en entrée de l état\n';
-	code += '\t  ' + generator.statementToCode(block, 'DESCR') + '\n';
+	code += '\t  //Actions en entrée de l état\n';
+	code += generator.statementToCode(block, 'DESCR');
 	code += '\t}\n';
-	code += '\t' + generator.statementToCode(block, 'TRANS') + '\n';
-	code += '\tif (onExit()) {//TODO : pouvoir intégrer des actions en sortie d état}\n';
+	code += '\t//Transitions vers les autres états\n';
+	code += generator.statementToCode(block, 'TRANS');
+	code += '\tif (onExit()) {\n';
+	code += '\t  //TODO : pouvoir intégrer des actions en sortie d état\n';
+	code += '\t}\n';
 	code += '\tbreak;\n';
 
   return code;
@@ -962,8 +965,8 @@ stm32Generator.forBlock['attendre_expert'] = function(block, generator) {
   else {  valeur_avec_conversion = value; }
   
   //Génération du code
-  code ='gotoStateAfter(' + prochain_etat + ', ' + valeur_avec_conversion + ');\n';
-  return code + '\n';
+  code ='gotoStateAfter(' + prochain_etat + ', ' + valeur_avec_conversion + ');';
+  return ('\t' + code + '\n');
 };
 
 // _____________________________________________________________________
@@ -980,8 +983,8 @@ stm32Generator.forBlock['convergence_expert'] = function(block, generator) {
   else {  valeur_avec_conversion = value; }
   
   //Génération du code
-  code ='gotoStateIfConvergence(' + prochain_etat + ', ' + valeur_avec_conversion + ');\n';
-  return code + '\n';
+  code ='gotoStateIfConvergence(' + prochain_etat + ', ' + valeur_avec_conversion + ');';
+  return ('\t' + code + '\n');
 };
 // _____________________________________________________________________
 stm32Generator.forBlock['convergence_rapide_expert'] = function(block, generator) {
@@ -997,8 +1000,8 @@ stm32Generator.forBlock['convergence_rapide_expert'] = function(block, generator
   else {  valeur_avec_conversion = value; }
   
   //Génération du code
-  code ='gotoStateIfConvergenceRapide(' + prochain_etat + ', ' + valeur_avec_conversion + ');\n';
-  return code + '\n';
+  code ='gotoStateIfConvergenceRapide(' + prochain_etat + ', ' + valeur_avec_conversion + ');';
+  return ('\t' + code + '\n');
 };
 // _____________________________________________________________________
 stm32Generator.forBlock['set_pos'] = function(block, generator) {
@@ -1018,7 +1021,7 @@ stm32Generator.forBlock['set_pos'] = function(block, generator) {
       code = 'Application.m_asservissement.CommandeMouvementDistanceAngle(' + f1 + ' , ' + f3 + ');\n';
       break;
   }
-  return code + '\n';
+  return ('\t  '+ code + '\n');
 };
 
 // _____________________________________________________________________
@@ -1027,7 +1030,7 @@ stm32Generator.forBlock['set_servo_expert'] = function(block, generator) {
 	const valueServo = block.getFieldValue('SERVO_POS_VAL');
 	let code;
 	code='Application.m_servos.CommandePositionVitesse(' + idServo + ',' + valueServo + ',100);';
-	return code + '\n';
+	return ('\t  ' + code + '\n');
 };
 
 // _____________________________________________________________________
@@ -1036,7 +1039,7 @@ stm32Generator.forBlock['set_ax_expert'] = function(block, generator) {
 	const valAX = block.getFieldValue('AX_POS_VAL');
 	let code;
 	code='Application.m_servos_ax.setPosition(' + idAX + ',' + valAX + ');';
-	return code + '\n';
+	return ('\t  ' + code + '\n');
 };
 
 // _____________________________________________________________________
@@ -1045,5 +1048,5 @@ stm32Generator.forBlock['set_motor'] = function(block, generator) {
 	const valueMotor = block.getFieldValue('MOTOR_PWM');
 	let code;
 	code='Application.m_moteurs.CommandeVitesse(' + idMotor + ',' + valueMotor + ');';
-	return code + '\n';
+	return ('\t  ' + code + '\n');
 };
