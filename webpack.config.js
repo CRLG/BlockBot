@@ -1,5 +1,6 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const CopyPlugin = require('copy-webpack-plugin');
 
 // Base config that applies to either development or production mode.
 const config = {
@@ -30,6 +31,17 @@ const config = {
     // created above added in a script tag.
     new HtmlWebpackPlugin({
       template: 'src/index.html',
+    }),
+    // Copie les assets Blockly (icônes, sprites, sons) dans le répertoire de sortie.
+    // Sans cela, Blockly les charge depuis https://blockly-demo.appspot.com, ce qui
+    // nécessite une connexion internet.
+    new CopyPlugin({
+      patterns: [
+        {
+          from: path.resolve(__dirname, 'node_modules/blockly/media'),
+          to: 'media',
+        },
+      ],
     }),
   ],
 };

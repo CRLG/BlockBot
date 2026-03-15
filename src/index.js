@@ -58,11 +58,15 @@ const toolboxJson = JSON.stringify(toolbox);
 //dans un workspace qui sera utilisé par la suite.
 const ws = Blockly.inject(blocklyDiv,
         {toolbox,
+            // Chemin local vers les assets Blockly (icônes, sprites, sons).
+            // Sans cette option, Blockly les charge depuis blockly-demo.appspot.com
+            // ce qui requiert une connexion internet.
+            media: 'media/',
             grid:				// Affiche la grille
                 {spacing: 20,
                 length: 3,
                 colour: '#ccc',
-                snap: true},        
+                snap: true},
             zoom:               // Affiche les boutons du zoom et le bouton de recentrage
                 {controls: true,
                 wheel: true,
