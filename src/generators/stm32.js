@@ -1050,3 +1050,23 @@ stm32Generator.forBlock['set_motor'] = function(block, generator) {
 	code='Application.m_moteurs.CommandeVitesse(' + idMotor + ',' + valueMotor + ');';
 	return ('\t  ' + code + '\n');
 };
+
+// _____________________________________________________________________
+stm32Generator.forBlock['action_perso'] = function(block, generator) {
+  //Récupération du code saisi par l'utilisateur (|| '' : garde contre null au premier rendu)
+  const code = block.getFieldValue('CODE') || '';
+  //Indentation de chaque ligne non vide pour s'intégrer dans onEntry()
+  return code.split('\n')
+    .map(line => line.trim() ? '\t  ' + line : '')
+    .join('\n') + '\n';
+};
+
+// _____________________________________________________________________
+stm32Generator.forBlock['transition_perso'] = function(block, generator) {
+  //Récupération du code saisi par l'utilisateur (|| '' : garde contre null au premier rendu)
+  const code = block.getFieldValue('CODE') || '';
+  //Indentation de chaque ligne non vide pour s'intégrer dans la section TRANS
+  return code.split('\n')
+    .map(line => line.trim() ? '\t' + line : '')
+    .join('\n') + '\n';
+};

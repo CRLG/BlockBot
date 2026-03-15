@@ -767,10 +767,13 @@ export const toolbox = {
             VAL3: { shadow: { type: 'math_number', fields: { NUM: 0 } } },
           },
         },
+        // --- Actions ---
+        { kind: 'block', type: 'action_perso' },
         // --- Transitions ---
         { kind: 'block', type: 'attendre_expert' },
         { kind: 'block', type: 'convergence_expert' },
         { kind: 'block', type: 'convergence_rapide_expert' },
+        { kind: 'block', type: 'transition_perso' },
       ],
     },
   ],

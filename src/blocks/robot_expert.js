@@ -18,6 +18,12 @@
  */
 
 import * as Blockly from 'blockly/core';
+import { registerFieldMultilineInput } from '@blockly/field-multilineinput';
+
+// Enregistre le type 'field_multilinetext' dans le registre Blockly,
+// nécessaire pour que les blocs action_perso et transition_perso
+// affichent leur champ de saisie multiligne.
+registerFieldMultilineInput();
 
 // Pont de log vers LaBotBox (qtLog() exposé sur window par index.js)
 const log = (msg) => window.qtLog?.(String(msg));
@@ -793,6 +799,55 @@ if (!Blockly.Extensions.isRegistered('etat_expert_behavior')) {
 }
 
 // ================================================================
+// BLOCS CODE PERSONNALISE
+// Permettent à l'utilisateur d'écrire du code C directement dans
+// le bloc, via un champ multiligne. Le bloc entier peut être replié
+// via clic droit → "Replier le bloc" pour gagner de la place.
+// ================================================================
+
+// ___________________________________________
+// action_perso — orange (30)
+// S'insère dans la section DESCR (actions) d'un etat_expert.
+const action_perso = {
+  "type": "action_perso",
+  "message0": "Action perso %1",
+  "args0": [
+    {
+      "type": "field_multilinetext",
+      "name": "CODE",
+      "text": "// votre code ici",
+      "spellcheck": false
+    }
+  ],
+  "previousStatement": TYPE_ACTION,
+  "nextStatement":     TYPE_ACTION,
+  "colour": 30,
+  "tooltip": "Bloc d'action avec code C personnalise",
+  "helpUrl": ""
+};
+
+// ___________________________________________
+// transition_perso — vert (120, comme les autres transitions)
+// S'insère dans la section TRANS (transitions) d'un etat_expert.
+const transition_perso = {
+  "type": "transition_perso",
+  "message0": "Transition perso %1",
+  "args0": [
+    {
+      "type": "field_multilinetext",
+      "name": "CODE",
+      "text": "// votre code ici",
+      "spellcheck": false
+    }
+  ],
+  "previousStatement": TYPE_TRANSITION,
+  "nextStatement":     TYPE_TRANSITION,
+  "colour": COULEUR_TRANSITION,
+  "tooltip": "Bloc de transition avec code C personnalise",
+  "helpUrl": ""
+};
+
+// ================================================================
 // Export des définitions de blocs
 // ================================================================
 export const blocks_robot_expert = Blockly.common.createBlockDefinitionsFromJsonArray([
@@ -805,4 +860,6 @@ export const blocks_robot_expert = Blockly.common.createBlockDefinitionsFromJson
   attendre_expert,
   convergence_expert,
   convergence_rapide_expert,
+  action_perso,
+  transition_perso,
 ]);
