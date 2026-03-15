@@ -27,7 +27,7 @@ code {
 }
 
 #outputPane {
-  display: flex;
+  display: none;
   flex-direction: column;
   width: 600px;
   flex: 0 0 600px;
@@ -36,10 +36,11 @@ code {
 }
 
 #generatedCode {
-  height: 50%;
+  flex: 1;
+  overflow: auto;
   background-color: rgb(247, 240, 228);
 }
 
 #output {
-  height: 50%;
+  display: none;
 }

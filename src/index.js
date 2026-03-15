@@ -206,6 +206,15 @@ document.addEventListener('DOMContentLoaded', function() {
 												case 'set_mode':
 														return setModeAffichage(params);
 														
+												// Affichage / masquage du panneau de code genere
+												// params vaut "true" (afficher) ou "false" (masquer)
+												case 'show_code':
+														document.getElementById('outputPane').style.display =
+															(params === 'true') ? 'flex' : 'none';
+														// Notifie Blockly du changement de taille du workspace
+														Blockly.svgResize(ws);
+														return;
+														
 												//gestion de la sauvegarde du projet
 												case 'save_project':
 													return downloadWorkspace(ws);
