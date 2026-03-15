@@ -149,6 +149,28 @@ export function restoreWorkspaceFromJson(workspace, json){
 }
 */
 
+// Construit le nom de fichier par défaut pour la sauvegarde.
+// Format : <annee>_<mois>_<jour>_<heure>h<minutes>_<NOM_SM>.json
+// NOM_SM est extrait du premier bloc state_machine_expert trouvé dans le workspace.
+// Si aucun bloc n'est trouvé, on utilise 'workspace' comme nom de repli.
+const construireNomFichier = function (workspace) {
+    const now = new Date();
+    const pad = (n) => String(n).padStart(2, '0');
+    const horodatage =
+        now.getFullYear() + '_' +
+        pad(now.getMonth() + 1) + '_' +
+        pad(now.getDate()) + '_' +
+        pad(now.getHours()) + 'h' +
+        pad(now.getMinutes());
+
+    // Recherche du premier bloc state_machine_expert dans le workspace
+    const blocs = workspace.getAllBlocks(false);
+    const blocSM = blocs.find(b => b.type === 'state_machine_expert');
+    const nomSM = blocSM ? (blocSM.getFieldValue('NOM_SM') || 'workspace') : 'workspace';
+
+    return horodatage + '_' + nomSM + '.json';
+};
+
 // Fonction de téléchargement du fichier JSON
 export const downloadWorkspace = function (workspace) {
     // Sérialisation standard de Blockly (contient déjà tous les champs NOM des blocs)
@@ -160,7 +182,8 @@ export const downloadWorkspace = function (workspace) {
 
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'blockly_workspace.json';
+    // Nom de fichier horodaté avec le nom de la machine à états
+    a.download = construireNomFichier(workspace);
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);

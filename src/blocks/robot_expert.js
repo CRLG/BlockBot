@@ -226,14 +226,19 @@ registerDynamicPairExtension('dynamic_motor',     'MOTOR_NOM',     'MOTOR_VAL', 
 //             "--- choisir ---". N'est pas sérialisé comme identifiant.
 const state_machine_expert = {
   "type": "state_machine_expert",
-  "message0": "Machine a etats %1 %2 %3 %4",
-  "args0": [
-    { "type": "input_dummy" },
+  "message0": "Machine a etats %1",
+  "args0": [{ "type": "input_dummy" }],
+  "message1": "%1 %2",
+  "args1": [
     {
       "type": "field_dropdown",
       "name": "STRAT_NOM",
       "options": [["--- choisir ---", "0"]]
     },
+    { "type": "input_dummy" }
+  ],
+  "message2": "%1 %2",
+  "args2": [
     {
       "type": "field_input",
       "name": "NOM_SM",
@@ -245,7 +250,6 @@ const state_machine_expert = {
       "check": TYPE_ETAT
     }
   ],
-  "inputsInline": true,
   "colour": 230,
   "tooltip": "",
   "helpUrl": "",
