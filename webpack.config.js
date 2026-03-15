@@ -10,7 +10,6 @@ const config = {
     filename: 'bundle.js',
     path: path.resolve(__dirname, 'dist'),
     clean: true,
-    //publicPath: './',
   },
   // Enable webpack-dev-server to get hot refresh of the app.
   devServer: {
@@ -25,6 +24,9 @@ const config = {
       },
     ],
   },
+  // Désactive les avertissements de performance webpack (seuils calibrés pour
+  // des apps web publiques, non pertinents pour un usage embarqué Qt WebEngine)
+  performance: { hints: false },
   plugins: [
     // Generate the HTML index page based on our template.
     // This will output the same index page with the bundle we
@@ -47,6 +49,12 @@ const config = {
 };
 
 module.exports = (env, argv) => {
+  if (argv.mode !== 'development') {
+    // En production, les chemins doivent être relatifs à l'HTML pour que le
+    // répertoire dist/ soit utilisable partout (LaBotBox, Qt WebEngine, etc.)
+    config.output.publicPath = './';
+  }
+
   if (argv.mode === 'development') {
     // Set the output path to the `build` directory
     // so we don't clobber production builds.
