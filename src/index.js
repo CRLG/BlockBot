@@ -237,6 +237,10 @@ document.addEventListener('DOMContentLoaded', function() {
 												case 'values_servos_ax':
 												case 'set_bot_state':
 														return initContextFromLaBotBox({ [command]: JSON.parse(params) });
+
+										// Création d'un état XYTheta + convergence depuis un double-clic SimuBot
+										case 'add_state_simu':
+												return addStatePosFromSimu(JSON.parse(params));
 										}
 								});
             });
@@ -345,5 +349,118 @@ function sendGeneratedCode() {
         // Envoyer le code, le nom de la stratégie ET la liste des états
         BlockBotLab.processData(code, nomStrategie, listeEtatsJSON);
     }
+}
+
+//########################################################################
+/**
+ * FONCTION POUR LABOTBOX — SimuBot
+ * Retourne le dernier bloc du type donné dont nextConnection est libre.
+ * Utilisé pour chaîner un nouveau bloc à la fin d'une séquence existante.
+ *
+ * @param  {string} blockType  Type Blockly du bloc cible (ex. 'etat_expert')
+ * @returns {Blockly.Block|null}
+ */
+function findLastUnconnectedBlock(blockType) {
+    var ws = Blockly.getMainWorkspace();
+    var last = null;
+    ws.getAllBlocks(false)
+      .filter(function(b) { return b.type === blockType; })
+      .forEach(function(b) {
+          if (b.nextConnection && !b.nextConnection.targetBlock()) {
+              last = b;
+          }
+      });
+    return last;
+}
+
+//########################################################################
+/**
+ * FONCTION POUR LABOTBOX — SimuBot
+ * Crée un triplet (etat_expert + set_pos XYTheta + convergence_expert) depuis
+ * les coordonnées transmises par CSimuBot via la commande "add_state_simu",
+ * et le connecte au dernier état libre de la chaîne de la machine à états.
+ *
+ * Ordre de câblage :
+ *   set_pos(XYT, x, y, theta) → DESCR de l'état
+ *   convergence_expert(timeout ms) → TRANS de l'état
+ *   état → nextConnection du dernier etat_expert existant
+ *
+ * @param {Object} data  { x: number, y: number, theta: number, timeout: number }
+ */
+function addStatePosFromSimu(data) {
+    var ws = Blockly.getMainWorkspace();
+
+    // ── 0. Chercher le dernier état libre AVANT de créer les nouveaux blocs ─
+    // IMPORTANT : doit être appelé ici, avant tout ws.newBlock() / initSvg().
+    // Si appelé après, findLastUnconnectedBlock() trouverait le stateBlock
+    // qu'on vient de créer et tenterait de le connecter à lui-même (Blockly
+    // détecte le cycle et ignore silencieusement la connexion).
+    var lastState = findLastUnconnectedBlock('etat_expert');
+
+    // ── 1. Bloc état ──────────────────────────────────────────────────────
+    var stateBlock = ws.newBlock('etat_expert');
+    stateBlock.initSvg();
+    stateBlock.render();
+
+    // ── 2. Bloc action set_pos XYTheta ────────────────────────────────────
+    var actionBlock = ws.newBlock('set_pos');
+    actionBlock.initSvg();
+    actionBlock.render();
+    // Passage en mode XYT après initSvg() pour déclencher l'extension set_pos_mode
+    // et rendre visible les 3 entrées VAL1 / VAL2 / VAL3
+    actionBlock.setFieldValue('XYT', 'MODE');
+
+    // Connexion des valeurs numériques X, Y, Theta sur les entrées VAL1/VAL2/VAL3
+    [
+        { input: 'VAL1', value: data.x     },
+        { input: 'VAL2', value: data.y     },
+        { input: 'VAL3', value: Math.round(data.theta * 100) / 100 }
+    ].forEach(function(v) {
+        var numBlock = ws.newBlock('math_number');
+        numBlock.setFieldValue(String(v.value), 'NUM');
+        numBlock.initSvg();
+        numBlock.render();
+        var inp = actionBlock.getInput(v.input);
+        if (inp && inp.connection && numBlock.outputConnection) {
+            inp.connection.connect(numBlock.outputConnection);
+        }
+    });
+
+    // ── 3. Bloc transition convergence + timeout ───────────────────────────
+    var transBlock = ws.newBlock('convergence_expert');
+    transBlock.setFieldValue(String(data.timeout), 'VALEUR');
+    transBlock.setFieldValue('MSEC', 'UNITES');
+    transBlock.initSvg();
+    transBlock.render();
+
+    // ── 4. Câblage interne : action dans DESCR, transition dans TRANS ──────
+    var descrInput = stateBlock.getInput('DESCR');
+    if (descrInput && descrInput.connection && actionBlock.previousConnection) {
+        descrInput.connection.connect(actionBlock.previousConnection);
+    }
+    var transInput = stateBlock.getInput('TRANS');
+    if (transInput && transInput.connection && transBlock.previousConnection) {
+        transInput.connection.connect(transBlock.previousConnection);
+    }
+
+    // ── 5. Connexion au dernier état libre de la chaîne ────────────────────
+    if (lastState && lastState.nextConnection && stateBlock.previousConnection) {
+        // Cas 1 : au moins un état existait avant cet appel → connecter en fin de chaîne
+        lastState.nextConnection.connect(stateBlock.previousConnection);
+    } else {
+        // Cas 2 : workspace vide → créer un state_machine_expert enveloppant
+        var smBlock = ws.newBlock('state_machine_expert');
+        smBlock.initSvg();
+        smBlock.render();
+        smBlock.moveBy(50, 50);
+        var smDescr = smBlock.getInput('DESCR');
+        if (smDescr && smDescr.connection && stateBlock.previousConnection) {
+            smDescr.connection.connect(stateBlock.previousConnection);
+        } else {
+            stateBlock.moveBy(50, 150);
+        }
+    }
+
+    ws.render();
 }
 
