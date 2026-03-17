@@ -336,7 +336,7 @@ const set_ax_expert = {
 // set_motor  — cyan (185)
 const set_motor = {
   "type": "set_motor",
-  "message0": "Mettre %1 %2 à %3",
+  "message0": "Mettre moteur %1 %2 à %3",
   "args0": [
     { "type": "field_dropdown", "name": "MOTOR_NOM", "options": [["(aucun)", "0"]] },
     { "type": "field_number",   "name": "MOTOR_VAL", "value": 0, "precision": 1 },
