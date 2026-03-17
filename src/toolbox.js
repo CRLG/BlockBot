@@ -759,6 +759,7 @@ export const toolbox = {
         { kind: 'block', type: 'set_servo_expert' },
         { kind: 'block', type: 'set_ax_expert' },
         { kind: 'block', type: 'set_motor' },
+        { kind: 'block', type: 'set_switch' },
         {
           kind: 'block', type: 'set_pos',
           inputs: {

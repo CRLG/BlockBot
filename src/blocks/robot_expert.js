@@ -60,7 +60,8 @@ export const labotboxContext = {
   values_servos:    [],
   servos_ax:        [],
   values_servos_ax: [],
-  set_bot_state:    []
+  set_bot_state:    [],
+  switch:           []
 };
 
 /**
@@ -218,6 +219,7 @@ registerDynamicPairExtension('dynamic_servo_pos', 'SERVO_POS_NOM', 'SERVO_POS_VA
 registerDynamicPairExtension('dynamic_servo_ax',  'SERVO_AX_NOM',  'SERVO_AX_VAL', 'servos_ax',        300);
 registerDynamicPairExtension('dynamic_ax_pos',    'AX_POS_NOM',    'AX_POS_VAL',   'values_servos_ax', 300, true);
 registerDynamicPairExtension('dynamic_motor',     'MOTOR_NOM',     'MOTOR_VAL',    'moteurs',          185);
+registerDynamicPairExtension('dynamic_switch',    'SWITCH_NOM',    'SWITCH_VAL',   'switch',           20);
 
 
 // ================================================================
@@ -357,6 +359,26 @@ const set_motor = {
   "tooltip": "Commande moteur (-100 à +100)",
   "helpUrl": "",
   "extensions": ["dynamic_motor"]
+};
+
+// ___________________________________________
+// set_switch  — orange-rouge (20)
+// Commande un power switch (sortie 0 ou 1) identifié par son index eATTRIBUTION_POWER_ELECTROBOT.
+const set_switch = {
+  "type": "set_switch",
+  "message0": "Mettre switch %1 %2 à %3",
+  "args0": [
+    { "type": "field_dropdown", "name": "SWITCH_NOM", "options": [["(aucun)", "0"]] },
+    { "type": "field_number",   "name": "SWITCH_VAL", "value": 0, "precision": 1 },
+    { "type": "field_number",   "name": "SWITCH_ETAT", "value": 0, "min": 0, "max": 1, "precision": 1 }
+  ],
+  "inputsInline": true,
+  "previousStatement": TYPE_ACTION,
+  "nextStatement":     TYPE_ACTION,
+  "colour": 20,
+  "tooltip": "Commande un power switch (0 = éteint, 1 = allumé)",
+  "helpUrl": "",
+  "extensions": ["dynamic_switch"]
 };
 
 // ___________________________________________
@@ -880,6 +902,7 @@ export const blocks_robot_expert = Blockly.common.createBlockDefinitionsFromJson
   set_servo_expert,
   set_ax_expert,
   set_motor,
+  set_switch,
   set_pos,
   set_pos_static,
   attendre_expert,

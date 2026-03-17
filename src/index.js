@@ -235,7 +235,8 @@ document.addEventListener('DOMContentLoaded', function() {
 												case 'values_servos':
 												case 'servos_ax':
 												case 'values_servos_ax':
-												case 'set_bot_state':
+											case 'set_bot_state':
+											case 'switch':
 														return initContextFromLaBotBox({ [command]: JSON.parse(params) });
 
 										// Création d'un état XYTheta + convergence depuis un double-clic SimuBot

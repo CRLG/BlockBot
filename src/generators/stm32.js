@@ -1068,6 +1068,15 @@ stm32Generator.forBlock['set_motor'] = function(block, generator) {
 };
 
 // _____________________________________________________________________
+stm32Generator.forBlock['set_switch'] = function(block, generator) {
+	const idSwitch = block.getFieldValue('SWITCH_VAL');
+	const etat = block.getFieldValue('SWITCH_ETAT');
+	let code;
+	code='Application.m_power_electrobot.setOutput(' + idSwitch + ',' + etat + ');';
+	return ('\t  ' + code + '\n');
+};
+
+// _____________________________________________________________________
 stm32Generator.forBlock['action_perso'] = function(block, generator) {
   //Récupération du code saisi par l'utilisateur (|| '' : garde contre null au premier rendu)
   const code = block.getFieldValue('CODE') || '';
