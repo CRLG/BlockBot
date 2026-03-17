@@ -1043,8 +1043,9 @@ stm32Generator.forBlock['set_pos_static'] = function(block, generator) {
 stm32Generator.forBlock['set_servo_expert'] = function(block, generator) {
 	const idServo = block.getFieldValue('SERVO_VAL');
 	const valueServo = block.getFieldValue('SERVO_POS_VAL');
+	const vitesse = block.getFieldValue('SERVO_VIT');
 	let code;
-	code='Application.m_servos.CommandePositionVitesse(' + idServo + ',' + valueServo + ',100);';
+	code='Application.m_servos.CommandePositionVitesse(' + idServo + ',' + valueServo + ',' + vitesse + ');';
 	return ('\t  ' + code + '\n');
 };
 

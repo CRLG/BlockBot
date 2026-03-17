@@ -296,12 +296,13 @@ const etat_expert = {
 // set_servo_expert  — violet clair (260)
 const set_servo_expert = {
   "type": "set_servo_expert",
-  "message0": "Mettre servo %1 %2 à %3 %4",
+  "message0": "Mettre servo %1 %2 à %3 %4 vitesse %5",
   "args0": [
     { "type": "field_dropdown", "name": "SERVO_NOM",     "options": [["(aucun)", "0"]] },
     { "type": "field_number",   "name": "SERVO_VAL",     "value": 0, "precision": 1 },
     { "type": "field_dropdown", "name": "SERVO_POS_NOM", "options": [["user_defined", "0"]] },
-    { "type": "field_number",   "name": "SERVO_POS_VAL", "value": 0, "precision": 1 }
+    { "type": "field_number",   "name": "SERVO_POS_VAL", "value": 0, "precision": 1 },
+    { "type": "field_number",   "name": "SERVO_VIT",     "value": 255, "min": 1, "max": 255, "precision": 1 }
   ],
   "inputsInline": true,
   "previousStatement": TYPE_ACTION,
