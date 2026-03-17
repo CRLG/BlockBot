@@ -1009,18 +1009,19 @@ stm32Generator.forBlock['set_pos'] = function(block, generator) {
   const f1 = generator.valueToCode(block, 'VAL1', Order.NONE) || '0';
   const f2 = generator.valueToCode(block, 'VAL2', Order.NONE) || '0';
   const f3 = generator.valueToCode(block, 'VAL3', Order.NONE) || '0';
+  const sym = block.getFieldValue('SYM');
   let code;
   switch (mode) {
     case 'XY':
-      code = 'Application.m_asservissement.CommandeMouvementXY(' + f1 + ' , ' + f2 + ');\n';
+      code = ((sym==='TRUE')?'outputs()->CommandeMouvementXY_sym(':'Application.m_asservissement.CommandeMouvementXY(')+ f1 + ' , ' + f2 + ');\n';
       break;
     case 'XYT':
-      code = 'Application.m_asservissement.CommandeMouvementXY_TETA(' + f1 + ' , ' + f2 + ' , ' + f3 + ');\n';
+      code = ((sym==='TRUE')?'outputs()->CommandeMouvementXY_TETA_sym(':'Application.m_asservissement.CommandeMouvementXY_TETA(') + f1 + ' , ' + f2 + ' , ' + f3 + ');\n';
       break;
     case 'DA':
       code = 'Application.m_asservissement.CommandeMouvementDistanceAngle(' + f1 + ' , ' + f3 + ');\n';
       break;
-  }
+	}
   return ('\t  '+ code + '\n');
 };
 
