@@ -767,6 +767,14 @@ export const toolbox = {
             VAL3: { shadow: { type: 'math_number', fields: { NUM: 0 } } },
           },
         },
+        {
+          kind: 'block', type: 'set_pos_static',
+          inputs: {
+            VAL1: { shadow: { type: 'math_number', fields: { NUM: 0 } } },
+            VAL2: { shadow: { type: 'math_number', fields: { NUM: 0 } } },
+            VAL3: { shadow: { type: 'math_number', fields: { NUM: 0 } } },
+          },
+        },
         // --- Actions ---
         { kind: 'block', type: 'action_perso' },
         // --- Transitions ---

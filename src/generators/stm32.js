@@ -1026,6 +1026,20 @@ stm32Generator.forBlock['set_pos'] = function(block, generator) {
 };
 
 // _____________________________________________________________________
+// set_pos_static : mode XYT fixe, sym identique a set_pos mode XYT
+stm32Generator.forBlock['set_pos_static'] = function(block, generator) {
+  const f1 = generator.valueToCode(block, 'VAL1', Order.NONE) || '0';
+  const f2 = generator.valueToCode(block, 'VAL2', Order.NONE) || '0';
+  const f3 = generator.valueToCode(block, 'VAL3', Order.NONE) || '0';
+  const sym = block.getFieldValue('SYM');
+  const code = ((sym === 'TRUE')
+    ? 'outputs()->setPosition_XYTeta_sym('
+    : 'Application.m_asservissement.setPosition_XYTeta(')
+    + f1 + ' , ' + f2 + ' , ' + f3 + ');\n';
+  return ('\t  ' + code + '\n');
+};
+
+// _____________________________________________________________________
 stm32Generator.forBlock['set_servo_expert'] = function(block, generator) {
 	const idServo = block.getFieldValue('SERVO_VAL');
 	const valueServo = block.getFieldValue('SERVO_POS_VAL');

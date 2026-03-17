@@ -431,6 +431,29 @@ if (!Blockly.Extensions.isRegistered('set_pos_mode')) {
   });
 }
 
+// ___________________________________________
+// set_pos_static  — jaune-vert (150)
+// Variante simplifiée de set_pos fixée en mode X/Y/Téta (pas de dropdown).
+// VAL1 = X, VAL2 = Y, VAL3 = Téta — toujours affichés (pas de masquage dynamique).
+// Case à cocher SYM pour appliquer la symétrie (même logique que set_pos mode XYT).
+const set_pos_static = {
+  "type": "set_pos_static",
+  "message0": "Position X/Y/Téta %1 %2 %3 (sym %4) %5",
+  "args0": [
+    { "type": "input_value", "name": "VAL1", "check": "Number" },
+    { "type": "input_value", "name": "VAL2", "check": "Number" },
+    { "type": "input_value", "name": "VAL3", "check": "Number" },
+    { "type": "field_checkbox", "name": "SYM", "checked": false },
+    { "type": "input_dummy" }
+  ],
+  "inputsInline": true,
+  "previousStatement": TYPE_ACTION,
+  "nextStatement":     TYPE_ACTION,
+  "colour": 150,
+  "tooltip": "Commande de déplacement X/Y/Téta (mode fixe)",
+  "helpUrl": ""
+};
+
 // ================================================================
 // BLOCS TRANSITION  (tous en vert 120)
 // ================================================================
@@ -857,6 +880,7 @@ export const blocks_robot_expert = Blockly.common.createBlockDefinitionsFromJson
   set_ax_expert,
   set_motor,
   set_pos,
+  set_pos_static,
   attendre_expert,
   convergence_expert,
   convergence_rapide_expert,
