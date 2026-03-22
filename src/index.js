@@ -246,6 +246,27 @@ document.addEventListener('DOMContentLoaded', function() {
 										// Création d'un triplet set_angle/avancer/set_angle depuis un double-clic SimuBot (mode débutant)
 										case 'add_pos_simu_debutant':
 												return addPosSimuDebutant(JSON.parse(params));
+
+										// ── Commandes HIL (Hardware In the Loop) ──────────────────
+										// Demande l'état de départ pour le HIL (sélectionné ou premier de la chaîne)
+										case 'get_hil_start_state':
+												return sendHILStartState();
+
+										// Demande la description (actions + transitions) d'un état précis
+										case 'get_hil_state':
+												return sendHILState(params);
+
+										// Demande l'action unique sélectionnée dans le workspace
+										case 'export_hil_single_action':
+												return sendHILSingleAction();
+
+										// Surligne le bloc etat_expert correspondant au nom donné
+										case 'highlight_hil_state':
+												return highlightHILState(params);
+
+										// Efface tout surlignage HIL
+										case 'clear_hil_highlight':
+												return clearHILHighlight();
 										}
 								});
             });
@@ -581,5 +602,300 @@ function addPosSimuDebutant(data) {
     }
 
     ws.render();
+}
+
+//########################################################################
+//                     FONCTIONS HIL (Hardware In the Loop)
+//########################################################################
+
+//########################################################################
+/**
+ * FONCTION POUR LABOTBOX — HIL
+ * Envoie le nom de l'état de départ au C++ via processHILExport.
+ *
+ * Priorité :
+ *   1. Si un bloc etat_expert est sélectionné dans le workspace → son NOM
+ *   2. Sinon → le premier etat_expert de la chaîne (connecté au state_machine_expert)
+ *
+ * Envoie une chaîne vide si aucun état n'est trouvé.
+ */
+function sendHILStartState() {
+    var startState = '';
+
+    // Priorité 1 : bloc sélectionné de type etat_expert
+    // Blockly.getSelected() retourne un ISelectable (pas forcément un block).
+    // Vérifier que c'est bien un block avec un champ 'type'.
+    var selected = Blockly.getSelected ? Blockly.getSelected() : null;
+    if (selected && selected.type === 'etat_expert' && selected.getFieldValue) {
+        startState = selected.getFieldValue('NOM') || '';
+    }
+
+    // Priorité 2 : premier état de la chaîne
+    if (!startState) {
+        var allBlocks = ws.getAllBlocks(false);
+        for (var i = 0; i < allBlocks.length; i++) {
+            var bloc = allBlocks[i];
+            if (bloc.type !== 'etat_expert') continue;
+            // Tête de chaîne = previousConnection connectée à un state_machine_expert ou non connectée
+            var prev = bloc.previousConnection ? bloc.previousConnection.targetBlock() : null;
+            if (!prev || prev.type !== 'etat_expert') {
+                startState = bloc.getFieldValue('NOM') || '';
+                break;
+            }
+        }
+    }
+
+    if (BlockBotLab && BlockBotLab.processHILExport) {
+        BlockBotLab.processHILExport('start_state', startState);
+    }
+}
+
+//########################################################################
+/**
+ * FONCTION POUR LABOTBOX — HIL
+ * Sérialise un état précis (actions + transitions) en JSON et l'envoie au C++.
+ *
+ * Le JSON produit contient :
+ *   - nom : nom de l'état
+ *   - actions : tableau d'objets décrivant chaque bloc action
+ *   - transitions : tableau d'objets décrivant chaque bloc transition
+ *
+ * Les blocs action_perso et transition_perso sont inclus avec ignored:true.
+ *
+ * @param {string} nomEtat  Nom de l'état recherché (champ NOM du bloc etat_expert)
+ */
+function sendHILState(nomEtat) {
+    var result = { nom: nomEtat, actions: [], transitions: [] };
+
+    // Trouver le bloc etat_expert correspondant
+    var stateBlock = null;
+    var allBlocks = ws.getAllBlocks(false);
+    for (var i = 0; i < allBlocks.length; i++) {
+        if (allBlocks[i].type === 'etat_expert' && allBlocks[i].getFieldValue('NOM') === nomEtat) {
+            stateBlock = allBlocks[i];
+            break;
+        }
+    }
+
+    if (!stateBlock) {
+        qtLog('[HIL] Etat introuvable : ' + nomEtat);
+        if (BlockBotLab && BlockBotLab.processHILExport) {
+            BlockBotLab.processHILExport('state', '');
+        }
+        return;
+    }
+
+    // ── Extraction des actions (chaîne DESCR) ────────────────────────────
+    var descrInput = stateBlock.getInput('DESCR');
+    if (descrInput && descrInput.connection) {
+        var cursor = descrInput.connection.targetBlock();
+        while (cursor) {
+            result.actions.push(extractActionHIL(cursor));
+            cursor = cursor.nextConnection ? cursor.nextConnection.targetBlock() : null;
+        }
+    }
+
+    // ── Extraction des transitions (chaîne TRANS) ────────────────────────
+    var transInput = stateBlock.getInput('TRANS');
+    if (transInput && transInput.connection) {
+        var cursor = transInput.connection.targetBlock();
+        while (cursor) {
+            result.transitions.push(extractTransitionHIL(cursor));
+            cursor = cursor.nextConnection ? cursor.nextConnection.targetBlock() : null;
+        }
+    }
+
+    if (BlockBotLab && BlockBotLab.processHILExport) {
+        BlockBotLab.processHILExport('state', JSON.stringify(result));
+    }
+}
+
+//########################################################################
+/**
+ * Extrait les paramètres HIL d'un bloc action.
+ * Retourne un objet JSON décrivant l'action pour CHILEngine.
+ *
+ * @param {Blockly.Block} block  Bloc action (TYPE_ACTION)
+ * @returns {Object}
+ */
+function extractActionHIL(block) {
+    switch (block.type) {
+        case 'set_servo_expert':
+            return {
+                type: 'set_servo_expert',
+                id:    Number(block.getFieldValue('SERVO_VAL')),
+                pos:   Number(block.getFieldValue('SERVO_POS_VAL')),
+                speed: Number(block.getFieldValue('SERVO_VIT'))
+            };
+
+        case 'set_ax_expert':
+            return {
+                type: 'set_ax_expert',
+                id:  Number(block.getFieldValue('SERVO_AX_VAL')),
+                pos: Number(block.getFieldValue('AX_POS_VAL'))
+            };
+
+        case 'set_motor':
+            return {
+                type: 'set_motor',
+                id:  Number(block.getFieldValue('MOTOR_VAL')),
+                pwm: Number(block.getFieldValue('MOTOR_PWM'))
+            };
+
+        case 'set_switch':
+            return {
+                type: 'set_switch',
+                id:   Number(block.getFieldValue('SWITCH_VAL')),
+                etat: Number(block.getFieldValue('SWITCH_ETAT'))
+            };
+
+        case 'set_pos': {
+            // VAL1/VAL2/VAL3 sont des input_value — extraire la valeur du shadow math_number connecté
+            var val1 = getInputNumberValue(block, 'VAL1');
+            var val2 = getInputNumberValue(block, 'VAL2');
+            var val3 = getInputNumberValue(block, 'VAL3');
+            return {
+                type: 'set_pos',
+                mode: block.getFieldValue('MODE'),
+                val1: val1,
+                val2: val2,
+                val3: val3
+            };
+        }
+
+        case 'set_pos_static': {
+            var val1 = getInputNumberValue(block, 'VAL1');
+            var val2 = getInputNumberValue(block, 'VAL2');
+            var val3 = getInputNumberValue(block, 'VAL3');
+            return {
+                type: 'set_pos_static',
+                val1: val1,
+                val2: val2,
+                val3: val3
+            };
+        }
+
+        case 'action_perso':
+            return { type: 'action_perso', ignored: true };
+
+        default:
+            return { type: block.type, ignored: true };
+    }
+}
+
+//########################################################################
+/**
+ * Extrait les paramètres HIL d'un bloc transition.
+ * Retourne un objet JSON décrivant la transition pour CHILEngine.
+ *
+ * @param {Blockly.Block} block  Bloc transition (TYPE_TRANSITION)
+ * @returns {Object}
+ */
+function extractTransitionHIL(block) {
+    switch (block.type) {
+        case 'attendre_expert':
+        case 'convergence_expert':
+        case 'convergence_rapide_expert': {
+            var unites = block.getFieldValue('UNITES');
+            var valeur = Number(block.getFieldValue('VALEUR'));
+            var timeoutMs = (unites === 'SEC') ? valeur * 1000 : valeur;
+            return {
+                type:       block.type,
+                timeout_ms: timeoutMs,
+                etat_cible: block.getFieldValue('NEXT_STATE') || 'FIN_MISSION'
+            };
+        }
+
+        case 'transition_perso':
+            return { type: 'transition_perso', ignored: true };
+
+        default:
+            return { type: block.type, ignored: true };
+    }
+}
+
+//########################################################################
+/**
+ * Helper : récupère la valeur numérique d'un input_value connecté à un math_number.
+ * Retourne 0 si l'input est vide ou non numérique.
+ *
+ * @param {Blockly.Block} block      Bloc parent
+ * @param {string}        inputName  Nom de l'input_value
+ * @returns {number}
+ */
+function getInputNumberValue(block, inputName) {
+    var input = block.getInput(inputName);
+    if (!input || !input.connection) return 0;
+    var target = input.connection.targetBlock();
+    if (!target) return 0;
+    // Shadow ou bloc math_number
+    if (target.type === 'math_number') {
+        return Number(target.getFieldValue('NUM')) || 0;
+    }
+    // Autre type de bloc connecté — on ne peut pas évaluer en HIL
+    return 0;
+}
+
+//########################################################################
+/**
+ * FONCTION POUR LABOTBOX — HIL
+ * Envoie la description de l'action sélectionnée dans le workspace.
+ * Si le bloc sélectionné n'est pas un bloc action (TYPE_ACTION), envoie une chaîne vide.
+ */
+function sendHILSingleAction() {
+    // Blockly.getSelected() retourne un ISelectable (pas forcément un block).
+    var selected = Blockly.getSelected ? Blockly.getSelected() : null;
+
+    if (!selected || !selected.type) {
+        if (BlockBotLab && BlockBotLab.processHILExport) {
+            BlockBotLab.processHILExport('single_action', '');
+        }
+        return;
+    }
+
+    // Vérifier que le bloc est un bloc action (TYPE_ACTION)
+    var actionTypes = [
+        'set_servo_expert', 'set_ax_expert', 'set_motor',
+        'set_switch', 'set_pos', 'set_pos_static', 'action_perso'
+    ];
+    if (actionTypes.indexOf(selected.type) === -1) {
+        if (BlockBotLab && BlockBotLab.processHILExport) {
+            BlockBotLab.processHILExport('single_action', '');
+        }
+        return;
+    }
+
+    var actionJson = JSON.stringify(extractActionHIL(selected));
+    if (BlockBotLab && BlockBotLab.processHILExport) {
+        BlockBotLab.processHILExport('single_action', actionJson);
+    }
+}
+
+//########################################################################
+/**
+ * FONCTION POUR LABOTBOX — HIL
+ * Surligne le bloc etat_expert dont le champ NOM vaut nomEtat.
+ * Utilise l'API Blockly highlightBlock() pour le feedback visuel.
+ *
+ * @param {string} nomEtat  Nom de l'état à surligner
+ */
+function highlightHILState(nomEtat) {
+    var allBlocks = ws.getAllBlocks(false);
+    for (var i = 0; i < allBlocks.length; i++) {
+        if (allBlocks[i].type === 'etat_expert' && allBlocks[i].getFieldValue('NOM') === nomEtat) {
+            ws.highlightBlock(allBlocks[i].id);
+            return;
+        }
+    }
+}
+
+//########################################################################
+/**
+ * FONCTION POUR LABOTBOX — HIL
+ * Efface tout surlignage HIL dans le workspace.
+ */
+function clearHILHighlight() {
+    // highlightBlock avec id vide efface tous les surlignages
+    ws.highlightBlock('');
 }
 
