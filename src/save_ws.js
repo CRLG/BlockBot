@@ -218,6 +218,38 @@ export function restoreWorkspaceFromJson(workspace, json) {
 }
 
 
+// Fusion de blocs depuis un fichier de sauvegarde sans effacer le workspace courant.
+// Contrairement à restoreWorkspaceFromJson, on n'appelle pas workspace.clear() :
+// les blocs importés s'ajoutent aux blocs existants, décalés vers la droite.
+// L'auto-renommage des etat_expert (listener BLOCK_CREATE dans index.js) résout
+// automatiquement les conflits de noms avec les blocs déjà présents.
+export function mergeWorkspaceFromJson(workspace, json) {
+    const blocksState = json.blocks;
+    if (!blocksState || !blocksState.blocks || blocksState.blocks.length === 0) {
+        qtLog('[import] Aucun bloc a importer dans ce fichier.');
+        return;
+    }
+
+    // Calcule le décalage X pour positionner les blocs importés à droite des blocs existants
+    var maxX = 0;
+    workspace.getAllBlocks(false).forEach(function(b) {
+        var pos = b.getRelativeToSurfaceXY();
+        if (pos.x > maxX) maxX = pos.x;
+    });
+    var offsetX = maxX > 0 ? maxX + 250 : 0;
+
+    blocksState.blocks.forEach(function(blockState) {
+        // Décaler horizontalement les blocs importés pour éviter la superposition
+        if (blockState.x !== undefined) {
+            blockState.x += offsetX;
+        }
+        Blockly.serialization.blocks.append(blockState, workspace);
+    });
+
+    qtLog('[import] ' + blocksState.blocks.length + ' bloc(s) de premier niveau importes.');
+}
+
+
 // Fonction conservée pour compatibilité navigateur (Firefox, etc.)
 export const uploadWorkspace = function (workspace, fic) {
     if (!fic) return;

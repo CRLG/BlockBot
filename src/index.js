@@ -16,7 +16,7 @@ import {blocks_robot_expert} from './blocks/robot_expert';
 import {stm32Generator} from './generators/stm32';
 import {arduinoGenerator} from './generators/arduino';
 import {save, load} from './serialization';
-import {downloadWorkspace, uploadWorkspace, restoreWorkspaceFromJson} from './save_ws';
+import {downloadWorkspace, uploadWorkspace, restoreWorkspaceFromJson, mergeWorkspaceFromJson} from './save_ws';
 import {toolbox} from './toolbox';
 import './index.css';
 import {initContextFromLaBotBox} from './blocks/robot_expert';
@@ -227,7 +227,12 @@ document.addEventListener('DOMContentLoaded', function() {
 												case 'load_project':
 													const json = JSON.parse(params);
             							return restoreWorkspaceFromJson(ws, json);
-            						
+
+            						// Fusion d'un fragment de projet dans le workspace courant (sans effacement)
+            						case 'import_project':
+            								const importJson = JSON.parse(params);
+            								return mergeWorkspaceFromJson(ws, importJson);
+
             						//gestion de l'enrichissement de contexte (pour les listes défilantes des blocks)	
             						case 'servos':
 												case 'moteurs':
