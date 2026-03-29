@@ -809,6 +809,7 @@ export const toolbox = {
             { kind: 'block', type: 'convergence_expert' },
             { kind: 'block', type: 'convergence_rapide_expert' },
             { kind: 'block', type: 'transition_perso' },
+            { kind: 'block', type: 'valeur_data' },
           ],
         },
       ],

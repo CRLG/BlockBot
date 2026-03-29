@@ -603,6 +603,15 @@ stm32Generator.forBlock['couleur_equipe'] = function(block, generator) {
 };
 
 // _____________________________________________________________________
+stm32Generator.forBlock['valeur_data'] = function(block, generator) {
+  // Lit la valeur d'un capteur physique du robot via Application.m_electrobot.
+  // varName est le nom du membre de CElectrobot (ex. "m_b_Etor1", "m_b_Eana3").
+  var varName = block.getFieldValue('DATA_VAR');
+  var code = 'Application.m_electrobot.' + varName;
+  return [code, Order.ATOMIC];
+};
+
+// _____________________________________________________________________
 stm32Generator.forBlock['active_inhibe_detection_obstacle'] = function(block, generator) {
 
    var state = block.getFieldValue('ACTIVE_INHIBE_DETECTION');

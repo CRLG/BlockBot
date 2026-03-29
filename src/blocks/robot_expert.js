@@ -222,6 +222,7 @@ registerDynamicPairExtension('dynamic_motor',     'MOTOR_NOM',     'MOTOR_VAL', 
 registerDynamicPairExtension('dynamic_switch',    'SWITCH_NOM',    'SWITCH_VAL',   'switch',           20);
 
 
+
 // ================================================================
 // DÉFINITIONS JSON DES BLOCS
 // ================================================================
@@ -852,6 +853,48 @@ if (!Blockly.Extensions.isRegistered('etat_expert_behavior')) {
 // ================================================================
 
 // ___________________________________________
+// valeur_data — bleu (230, comme robot_position)
+// Bloc valeur (output Number) : lit la valeur d'un capteur physique du robot
+// via Application.m_electrobot. La liste est statique et correspond
+// exactement aux membres de CElectrobot (CElectrobot.h).
+// Entrées TOR : m_b_Etor1..4 (unsigned char)
+// Entrées analogiques : m_b_Eana1..13 et m_b_Mes_Vbat (float)
+const valeur_data = {
+  "type": "valeur_data",
+  "message0": "Capteur %1",
+  "args0": [
+    {
+      "type": "field_dropdown",
+      "name": "DATA_VAR",
+      "options": [
+        ["Etor1",    "m_b_Etor1"],
+        ["Etor2",    "m_b_Etor2"],
+        ["Etor3",    "m_b_Etor3"],
+        ["Etor4",    "m_b_Etor4"],
+        ["Eana1",    "m_b_Eana1"],
+        ["Eana2",    "m_b_Eana2"],
+        ["Eana3",    "m_b_Eana3"],
+        ["Eana4",    "m_b_Eana4"],
+        ["Eana5",    "m_b_Eana5"],
+        ["Eana6",    "m_b_Eana6"],
+        ["Eana7",    "m_b_Eana7"],
+        ["Eana8",    "m_b_Eana8"],
+        ["Eana9",    "m_b_Eana9"],
+        ["Eana10",   "m_b_Eana10"],
+        ["Eana11",   "m_b_Eana11"],
+        ["Eana12",   "m_b_Eana12"],
+        ["Eana13",   "m_b_Eana13"],
+        ["Vbat",     "m_b_Mes_Vbat"]
+      ]
+    }
+  ],
+  "output": "Number",
+  "colour": 230,
+  "tooltip": "Valeur d'un capteur du robot (CElectrobot)",
+  "helpUrl": ""
+};
+
+// ___________________________________________
 // action_perso — orange (30)
 // S'insère dans la section DESCR (actions) d'un etat_expert.
 const action_perso = {
@@ -910,4 +953,5 @@ export const blocks_robot_expert = Blockly.common.createBlockDefinitionsFromJson
   convergence_rapide_expert,
   action_perso,
   transition_perso,
+  valeur_data,
 ]);
