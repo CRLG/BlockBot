@@ -808,6 +808,14 @@ export const toolbox = {
             { kind: 'block', type: 'attendre_expert' },
             { kind: 'block', type: 'convergence_expert' },
             { kind: 'block', type: 'convergence_rapide_expert' },
+            {
+              kind: 'block', type: 'si_vrai_expert',
+              inputs: {
+                CONDITION: {
+                  shadow: { type: 'logic_boolean', fields: { BOOL: 'TRUE' } },
+                },
+              },
+            },
             { kind: 'block', type: 'transition_perso' },
             { kind: 'block', type: 'valeur_data' },
           ],

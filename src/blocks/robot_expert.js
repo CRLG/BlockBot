@@ -548,6 +548,34 @@ const convergence_rapide_expert = {
   "extensions": ["auto_next_state"]
 };
 
+// ___________________________________________
+// si_vrai_expert — vert (COULEUR_TRANSITION)
+// Bloc de transition conditionnel : passe à l'état cible dès que la condition
+// booléenne est vraie, ou après le timeout. Wraps gotoStateIfTrue() de
+// SM_StateMachineBase. L'entrée CONDITION accepte tout bloc à output Boolean
+// (comparaisons, opérateurs logiques, valeur_data, robot_position, etc.).
+// Le timeout (champ VALEUR/UNITES) sert de garde-fou ; il peut être mis à une
+// valeur élevée si la condition est censée toujours se réaliser.
+const si_vrai_expert = {
+  "type": "si_vrai_expert",
+  "message0": "Aller vers %1 %2🔒 si %3 ou après %4 %5 %6",
+  "args0": [
+    { "type": "field_input",    "name": "NEXT_STATE",      "text": "FIN_MISSION" },
+    { "type": "field_checkbox", "name": "LOCK_NEXT_STATE", "checked": false },
+    { "type": "input_value",    "name": "CONDITION",       "check": "Boolean" },
+    { "type": "field_number",   "name": "VALEUR",          "value": 5000, "min": 0, "precision": 1 },
+    { "type": "field_dropdown", "name": "UNITES",          "options": [["msec", "MSEC"], ["sec", "SEC"]] },
+    { "type": "input_dummy" }
+  ],
+  "inputsInline": true,
+  "previousStatement": TYPE_TRANSITION,
+  "nextStatement":     TYPE_TRANSITION,
+  "colour": COULEUR_TRANSITION,
+  "tooltip": "Aller à l'état cible dès que la condition est vraie, ou après le timeout",
+  "helpUrl": "",
+  "extensions": ["auto_next_state"]
+};
+
 // ================================================================
 // Extension auto_next_state
 // ================================================================
@@ -951,6 +979,7 @@ export const blocks_robot_expert = Blockly.common.createBlockDefinitionsFromJson
   attendre_expert,
   convergence_expert,
   convergence_rapide_expert,
+  si_vrai_expert,
   action_perso,
   transition_perso,
   valeur_data,

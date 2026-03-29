@@ -1007,9 +1007,29 @@ stm32Generator.forBlock['convergence_rapide_expert'] = function(block, generator
   var valeur_avec_conversion;
   if (unites == 'SEC') {	valeur_avec_conversion = '1000 * ' + value; }
   else {  valeur_avec_conversion = value; }
-  
+
   //Génération du code
   code ='gotoStateIfConvergenceRapide(' + prochain_etat + ', ' + valeur_avec_conversion + ');';
+  return ('\t' + code + '\n');
+};
+// _____________________________________________________________________
+stm32Generator.forBlock['si_vrai_expert'] = function(block, generator) {
+  // Transition conditionnelle : passe à l'état cible dès que la condition est
+  // vraie, ou après le timeout. L'entrée CONDITION peut contenir n'importe quel
+  // bloc à output Boolean (comparaison, logique, capteur, etc.).
+  var unites = block.getFieldValue('UNITES');
+  var prochain_etat = block.getFieldValue('NEXT_STATE');
+  var value = block.getFieldValue('VALEUR');
+  var condition = generator.valueToCode(block, 'CONDITION', Order.NONE) || 'false';
+  let code;
+
+  // Conversion du timeout
+  var valeur_avec_conversion;
+  if (unites == 'SEC') { valeur_avec_conversion = '1000 * ' + value; }
+  else { valeur_avec_conversion = value; }
+
+  // Génération du code
+  code = 'gotoStateIfTrue(' + prochain_etat + ', ' + condition + ', ' + valeur_avec_conversion + ');';
   return ('\t' + code + '\n');
 };
 // _____________________________________________________________________
