@@ -882,11 +882,11 @@ if (!Blockly.Extensions.isRegistered('etat_expert_behavior')) {
 
 // ___________________________________________
 // valeur_data — bleu (230, comme robot_position)
-// Bloc valeur (output Number) : lit la valeur d'un capteur physique du robot
-// via Application.m_electrobot. La liste est statique et correspond
-// exactement aux membres de CElectrobot (CElectrobot.h).
-// Entrées TOR : m_b_Etor1..4 (unsigned char)
-// Entrées analogiques : m_b_Eana1..13 et m_b_Mes_Vbat (float)
+// Bloc valeur (output Number) : lit la valeur d'un capteur physique du robot.
+// Les valeurs du dropdown sont les clés DataManager LaBotBox (Etor1..4,
+// Eana1..13, Vbat) — directement utilisables pour interroger le DataManager
+// en HIL. Le générateur STM32 effectue le mapping vers les membres de
+// CElectrobot (m_b_Etor1, m_b_Eana1, m_b_Mes_Vbat, etc.).
 const valeur_data = {
   "type": "valeur_data",
   "message0": "Capteur %1",
@@ -895,24 +895,24 @@ const valeur_data = {
       "type": "field_dropdown",
       "name": "DATA_VAR",
       "options": [
-        ["Etor1",    "m_b_Etor1"],
-        ["Etor2",    "m_b_Etor2"],
-        ["Etor3",    "m_b_Etor3"],
-        ["Etor4",    "m_b_Etor4"],
-        ["Eana1",    "m_b_Eana1"],
-        ["Eana2",    "m_b_Eana2"],
-        ["Eana3",    "m_b_Eana3"],
-        ["Eana4",    "m_b_Eana4"],
-        ["Eana5",    "m_b_Eana5"],
-        ["Eana6",    "m_b_Eana6"],
-        ["Eana7",    "m_b_Eana7"],
-        ["Eana8",    "m_b_Eana8"],
-        ["Eana9",    "m_b_Eana9"],
-        ["Eana10",   "m_b_Eana10"],
-        ["Eana11",   "m_b_Eana11"],
-        ["Eana12",   "m_b_Eana12"],
-        ["Eana13",   "m_b_Eana13"],
-        ["Vbat",     "m_b_Mes_Vbat"]
+        ["Etor1",  "Etor1"],
+        ["Etor2",  "Etor2"],
+        ["Etor3",  "Etor3"],
+        ["Etor4",  "Etor4"],
+        ["Eana1",  "Eana1"],
+        ["Eana2",  "Eana2"],
+        ["Eana3",  "Eana3"],
+        ["Eana4",  "Eana4"],
+        ["Eana5",  "Eana5"],
+        ["Eana6",  "Eana6"],
+        ["Eana7",  "Eana7"],
+        ["Eana8",  "Eana8"],
+        ["Eana9",  "Eana9"],
+        ["Eana10", "Eana10"],
+        ["Eana11", "Eana11"],
+        ["Eana12", "Eana12"],
+        ["Eana13", "Eana13"],
+        ["Vbat",   "Vbat"]
       ]
     }
   ],

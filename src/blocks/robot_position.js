@@ -46,9 +46,9 @@ const robot_position = {
         "type": "field_dropdown",
         "name": "POSITION",
         "options": [
-          ["x_robot", "X_ROBOT"],
-          ["y_robot", "Y_ROBOT"],
-          ["teta_robot", "TETA_ROBOT"],
+          ["x_robot", "x_pos"],
+          ["y_robot", "y_pos"],
+          ["teta_robot", "teta_pos"],
         ]
       }
     ],

@@ -572,10 +572,12 @@ stm32Generator.forBlock['teta_robot'] = function(block, generator) {
 
 // _____________________________________________________________________
 stm32Generator.forBlock['robot_position'] = function(block, generator) {
+  // Les valeurs du dropdown sont les clés DataManager (x_pos, y_pos, teta_pos).
+  // Mapping vers les accesseurs STM32 correspondants.
   var POS_tab = {
-    'X_ROBOT' : ['inputs()->X_robot', Order.ATOMIC],
-    'Y_ROBOT' : ['inputs()->Y_robot', Order.ATOMIC],
-    'TETA_ROBOT' : ['inputs()->angle_robot', Order.ATOMIC]
+    'x_pos'    : ['inputs()->X_robot',    Order.ATOMIC],
+    'y_pos'    : ['inputs()->Y_robot',    Order.ATOMIC],
+    'teta_pos' : ['inputs()->angle_robot', Order.ATOMIC]
   };
   var pos = block.getFieldValue('POSITION');
   return POS_tab[pos];
@@ -605,9 +607,22 @@ stm32Generator.forBlock['couleur_equipe'] = function(block, generator) {
 // _____________________________________________________________________
 stm32Generator.forBlock['valeur_data'] = function(block, generator) {
   // Lit la valeur d'un capteur physique du robot via Application.m_electrobot.
-  // varName est le nom du membre de CElectrobot (ex. "m_b_Etor1", "m_b_Eana3").
-  var varName = block.getFieldValue('DATA_VAR');
-  var code = 'Application.m_electrobot.' + varName;
+  // La valeur du dropdown est la clé DataManager (ex. "Etor1", "Eana3", "Vbat").
+  // On mappe vers le membre CElectrobot correspondant pour la génération STM32.
+  var dmKey = block.getFieldValue('DATA_VAR');
+  var dmToElectrobot = {
+    'Etor1':  'm_b_Etor1',  'Etor2':  'm_b_Etor2',
+    'Etor3':  'm_b_Etor3',  'Etor4':  'm_b_Etor4',
+    'Eana1':  'm_b_Eana1',  'Eana2':  'm_b_Eana2',
+    'Eana3':  'm_b_Eana3',  'Eana4':  'm_b_Eana4',
+    'Eana5':  'm_b_Eana5',  'Eana6':  'm_b_Eana6',
+    'Eana7':  'm_b_Eana7',  'Eana8':  'm_b_Eana8',
+    'Eana9':  'm_b_Eana9',  'Eana10': 'm_b_Eana10',
+    'Eana11': 'm_b_Eana11', 'Eana12': 'm_b_Eana12',
+    'Eana13': 'm_b_Eana13', 'Vbat':   'm_b_Mes_Vbat'
+  };
+  var membre = dmToElectrobot[dmKey] || dmKey;
+  var code = 'Application.m_electrobot.' + membre;
   return [code, Order.ATOMIC];
 };
 

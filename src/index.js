@@ -15,6 +15,7 @@ import {blocks_robot_debutant} from './blocks/robot_debutant';
 import {blocks_robot_expert} from './blocks/robot_expert';
 import {stm32Generator} from './generators/stm32';
 import {arduinoGenerator} from './generators/arduino';
+import {javascriptGenerator, Order as OrderJS} from 'blockly/javascript';
 import {save, load} from './serialization';
 import {downloadWorkspace, uploadWorkspace, restoreWorkspaceFromJson, mergeWorkspaceFromJson} from './save_ws';
 import {toolbox} from './toolbox';
@@ -272,6 +273,14 @@ document.addEventListener('DOMContentLoaded', function() {
 										// Efface tout surlignage HIL
 										case 'clear_hil_highlight':
 												return clearHILHighlight();
+
+										// Init condition si_vrai_expert (blockId du bloc si_vrai_expert)
+										case 'hil_logic_init':
+												return sendHILLogicInit(params);
+
+										// Tick d'evaluation : snapshot DM JSON -> resultat booleen
+										case 'hil_logic_tick':
+												return evalHILLogicTick(params);
 										}
 								});
             });
@@ -613,6 +622,159 @@ function addPosSimuDebutant(data) {
 //                     FONCTIONS HIL (Hardware In the Loop)
 //########################################################################
 
+// ================================================================
+// GENERATEURS JAVASCRIPT pour l'évaluation HIL des conditions
+// du bloc si_vrai_expert. Coexistent sans conflit avec les générateurs
+// STM32 — chacun est appelé explicitement selon le contexte.
+//
+// Les valeurs des dropdowns sont les clés DataManager directement :
+//   valeur_data  → DM['Etor1'], DM['Eana3'], DM['Vbat'], etc.
+//   robot_position → DM['x_pos'], DM['y_pos'], DM['teta_pos']
+//   x_robot / y_robot / teta_robot → idem (blocs legacy à output Number)
+// ================================================================
+javascriptGenerator.forBlock['valeur_data'] = function(block) {
+    var key = block.getFieldValue('DATA_VAR');
+    return ['DM[\'' + key + '\']', OrderJS.MEMBER];
+};
+javascriptGenerator.forBlock['robot_position'] = function(block) {
+    var key = block.getFieldValue('POSITION');
+    return ['DM[\'' + key + '\']', OrderJS.MEMBER];
+};
+javascriptGenerator.forBlock['x_robot'] = function(block) {
+    return ['DM[\'x_pos\']', OrderJS.MEMBER];
+};
+javascriptGenerator.forBlock['y_robot'] = function(block) {
+    return ['DM[\'y_pos\']', OrderJS.MEMBER];
+};
+javascriptGenerator.forBlock['teta_robot'] = function(block) {
+    return ['DM[\'teta_pos\']', OrderJS.MEMBER];
+};
+
+// ================================================================
+// LOGIQUE HIL — évaluation de la condition booléenne de si_vrai_expert
+//
+// m_logicFn   : fonction compilée une seule fois à l'init de l'état
+// m_logicResult : dernier résultat d'évaluation (non utilisé côté JS,
+//                 la valeur est renvoyée directement via processHILExport)
+// ================================================================
+var m_logicFn = null;
+var m_logicResult = false;
+
+//########################################################################
+/**
+ * FONCTION POUR LABOTBOX — HIL si_vrai_expert
+ * Appelée par la commande WebChannel 'hil_logic_init'.
+ * Compile la condition booléenne du bloc si_vrai_expert dont l'id est
+ * fourni, extrait les clés DataManager nécessaires et les renvoie à
+ * CHILEngine via processHILExport("logic_keys", ...).
+ *
+ * @param {string} blockId  Id Blockly du bloc si_vrai_expert
+ */
+function sendHILLogicInit(blockId) {
+    m_logicFn = null;
+    m_logicResult = false;
+
+    var block = ws.getBlockById(blockId);
+    if (!block || block.type !== 'si_vrai_expert') {
+        qtLog('[HIL] sendHILLogicInit : bloc introuvable ou type incorrect : ' + blockId);
+        if (BlockBotLab && BlockBotLab.processHILExport) {
+            BlockBotLab.processHILExport('logic_keys', '[]');
+        }
+        return;
+    }
+
+    // Extraction des clés DataManager nécessaires à l'évaluation
+    var conditionBlock = block.getInputTargetBlock('CONDITION');
+    var keys = extractDMKeys(conditionBlock);
+
+    // Initialisation obligatoire du générateur JS avant tout appel direct à valueToCode
+    // (workspaceToCode() l'appelle en interne, mais ici on appelle valueToCode directement)
+    javascriptGenerator.init(ws);
+
+    // Génération de l'expression JS via le générateur natif Blockly JS
+    var expr = javascriptGenerator.valueToCode(block, 'CONDITION', OrderJS.NONE) || 'false';
+
+    // Compilation unique — new Function('DM', 'return (expr)')
+    try {
+        m_logicFn = new Function('DM', 'return (' + expr + ');');
+    } catch(e) {
+        qtLog('[HIL] Erreur compilation condition si_vrai_expert : ' + e.message);
+        m_logicFn = function() { return false; };
+    }
+
+    if (BlockBotLab && BlockBotLab.processHILExport) {
+        BlockBotLab.processHILExport('logic_keys', JSON.stringify(keys));
+    }
+}
+
+//########################################################################
+/**
+ * FONCTION POUR LABOTBOX — HIL si_vrai_expert
+ * Appelée par la commande WebChannel 'hil_logic_tick'.
+ * Évalue la condition compilée avec le snapshot DataManager fourni,
+ * renvoie le résultat booléen via processHILExport("logic_result", ...).
+ *
+ * @param {string} kvMapJson  JSON {"cle": valeur_numerique, ...}
+ */
+function evalHILLogicTick(kvMapJson) {
+    if (!m_logicFn) {
+        if (BlockBotLab && BlockBotLab.processHILExport) {
+            BlockBotLab.processHILExport('logic_result', 'false');
+        }
+        return;
+    }
+    var dm = {};
+    try { dm = JSON.parse(kvMapJson); } catch(e) {}
+    m_logicResult = !!m_logicFn(dm);
+    if (BlockBotLab && BlockBotLab.processHILExport) {
+        BlockBotLab.processHILExport('logic_result', m_logicResult ? 'true' : 'false');
+    }
+}
+
+//########################################################################
+/**
+ * Helper HIL — extrait récursivement les clés DataManager requises
+ * par l'arbre de blocs connecté à l'input CONDITION de si_vrai_expert.
+ * Seuls les blocs custom sont traités explicitement ; les blocs natifs
+ * Blockly (logic_compare, logic_operation, math_number…) n'ont pas de
+ * clé DM propre mais leurs sous-arbres sont parcourus.
+ *
+ * @param {Blockly.Block|null} block
+ * @returns {string[]}  Liste de clés DM dédupliquées
+ */
+function extractDMKeys(block) {
+    var keys = [];
+    if (!block) return keys;
+
+    if (block.type === 'valeur_data') {
+        // Valeur du dropdown = clé DM directe (Etor1, Eana3, Vbat…)
+        keys.push(block.getFieldValue('DATA_VAR'));
+    } else if (block.type === 'robot_position') {
+        // Valeur du dropdown = clé DM directe (x_pos, y_pos, teta_pos)
+        keys.push(block.getFieldValue('POSITION'));
+    } else if (block.type === 'x_robot') {
+        keys.push('x_pos');
+    } else if (block.type === 'y_robot') {
+        keys.push('y_pos');
+    } else if (block.type === 'teta_robot') {
+        keys.push('teta_pos');
+    }
+
+    // Parcours récursif de tous les inputs du bloc
+    for (var i = 0; i < block.inputList.length; i++) {
+        var conn = block.inputList[i].connection;
+        if (conn && conn.targetBlock()) {
+            var subKeys = extractDMKeys(conn.targetBlock());
+            for (var j = 0; j < subKeys.length; j++) {
+                keys.push(subKeys[j]);
+            }
+        }
+    }
+
+    // Dédoublonnage
+    return keys.filter(function(k, idx, arr) { return arr.indexOf(k) === idx; });
+}
+
 //########################################################################
 /**
  * FONCTION POUR LABOTBOX — HIL
@@ -811,6 +973,18 @@ function extractTransitionHIL(block) {
             };
         }
 
+        case 'si_vrai_expert': {
+            var unitesSV = block.getFieldValue('UNITES');
+            var valeurSV = Number(block.getFieldValue('VALEUR'));
+            var timeoutMsSV = (unitesSV === 'SEC') ? valeurSV * 1000 : valeurSV;
+            return {
+                type:       'si_vrai_expert',
+                blockId:    block.id,
+                etat_cible: block.getFieldValue('NEXT_STATE') || 'FIN_MISSION',
+                timeout_ms: timeoutMsSV
+            };
+        }
+
         case 'transition_perso':
             return { type: 'transition_perso', ignored: true };
 
@@ -902,5 +1076,8 @@ function highlightHILState(nomEtat) {
 function clearHILHighlight() {
     // highlightBlock avec id vide efface tous les surlignages
     ws.highlightBlock('');
+    // Nettoyage de la condition si_vrai_expert éventuellement compilée
+    m_logicFn = null;
+    m_logicResult = false;
 }
 
