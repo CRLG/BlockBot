@@ -515,9 +515,12 @@ function addStatePosFromSimu(data) {
  * Ordre des blocs créés :
  *   1. set_angle_robot(angle, DEGRES)   — orientation vers la cible
  *   2. avancer(distance)               — déplacement vers la cible
- *   3. set_angle_robot(teta, RADIANS)  — retour à l'orientation courante du robot
+ *   3. set_angle_robot(teta, DEGRES)   — retour à l'orientation courante du robot
  *
- * @param {Object} data  { angle: number, distance: number, teta: number }
+ * Les deux valeurs d'angle sont toujours transmises en degrés par CBlockBotLab
+ * (angle normalisé dans catchDoubleClick, teta converti depuis teta_pos DM).
+ *
+ * @param {Object} data  { angle: number (deg), distance: number, teta: number (deg) }
  */
 function addPosSimuDebutant(data) {
     var ws = Blockly.getMainWorkspace();
@@ -594,7 +597,7 @@ function addPosSimuDebutant(data) {
     if (tetaValInput && tetaValInput.connection && numTeta.outputConnection) {
         tetaValInput.connection.connect(numTeta.outputConnection);
     }
-    retourBlock.setFieldValue('RADIANS', 'UNITES');
+    retourBlock.setFieldValue('DEGRES', 'UNITES');
     retourBlock.initSvg();
     retourBlock.render();
 
