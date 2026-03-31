@@ -222,7 +222,7 @@ const reculer = {
 // ___________________________________________
 const set_angle_robot = {
   "type": "set_angle_robot",
-  "message0": "S'orienter à %1 %2",
+  "message0": "Tourner de %1 %2",
   "args0": [
     {
       "type": "input_value",
@@ -433,6 +433,29 @@ const commande_servo_position_vitesse = {
   "helpUrl": ""
 };
 
+// ___________________________________________
+// info_debutant — jaune (60)
+// Bloc de commentaire multiligne en mode débutant.
+// Génère uniquement un commentaire C++ dans le code produit,
+// sans incrémenter le compteur d'états de la machine à états.
+const info_debutant = {
+  "type": "info_debutant",
+  "message0": "Info %1",
+  "args0": [
+    {
+      "type": "field_multilinetext",
+      "name": "TEXTE",
+      "text": "Vos commentaires ici",
+      "spellcheck": false
+    }
+  ],
+  "previousStatement": null,
+  "nextStatement": null,
+  "colour": 60,
+  "tooltip": "Bloc de commentaire — ne génère pas d'état, uniquement un commentaire C++",
+  "helpUrl": ""
+};
+
 // ================================================================
 // Create the block definitions for the JSON-only blocks.
 // This does not register their definitions with Blockly.
@@ -453,5 +476,6 @@ export const blocks_robot_debutant = Blockly.common.createBlockDefinitionsFromJs
   valeur_si_couleur_equipe,
   commande_moteur_manuelle_duree,
   commande_servo_position_vitesse,
-  robot_object
+  robot_object,
+  info_debutant
  ]);

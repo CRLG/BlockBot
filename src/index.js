@@ -516,6 +516,7 @@ function addStatePosFromSimu(data) {
  *   1. set_angle_robot(angle, DEGRES)   — orientation vers la cible
  *   2. avancer(distance)               — déplacement vers la cible
  *   3. set_angle_robot(teta, DEGRES)   — retour à l'orientation courante du robot
+ *   4. info_debutant                   — commentaire récapitulatif angle/distance/teta
  *
  * Les deux valeurs d'angle sont toujours transmises en degrés par CBlockBotLab
  * (angle normalisé dans catchDoubleClick, teta converti depuis teta_pos DM).
@@ -601,15 +602,30 @@ function addPosSimuDebutant(data) {
     retourBlock.initSvg();
     retourBlock.render();
 
-    // ── 5. Chaîner les 3 blocs entre eux ────────────────────────────────────────────────
+    // ── 5. Bloc info_debutant (commentaire récapitulatif du déplacement) ─────────────
+    var infoBlock = ws.newBlock('info_debutant');
+    infoBlock.setFieldValue(
+        'On s\'est déplacé!\n' +
+        '(' + String(Math.round(data.angle * 100) / 100) + ' deg' +
+        ' puis ' + String(Math.round(data.distance * 100) / 100) + ' cm' +
+        ' et enfin ' + String(Math.round(data.teta * 100) / 100) + ' deg)',
+        'TEXTE'
+    );
+    infoBlock.initSvg();
+    infoBlock.render();
+
+    // ── 6. Chaîner les 4 blocs entre eux ────────────────────────────────────────────────
     if (angleBlock.nextConnection && avancerBlock.previousConnection) {
         angleBlock.nextConnection.connect(avancerBlock.previousConnection);
     }
     if (avancerBlock.nextConnection && retourBlock.previousConnection) {
         avancerBlock.nextConnection.connect(retourBlock.previousConnection);
     }
+    if (retourBlock.nextConnection && infoBlock.previousConnection) {
+        retourBlock.nextConnection.connect(infoBlock.previousConnection);
+    }
 
-    // ── 6. Connecter au dernier bloc de la chaîne DESCR ou à DESCR directement ─────────
+    // ── 7. Connecter au dernier bloc de la chaîne DESCR ou à DESCR directement ─────────
     if (lastInChain && lastInChain.nextConnection && angleBlock.previousConnection) {
         // Cas 1 : des blocs existent déjà dans DESCR — connecter en fin de chaîne
         lastInChain.nextConnection.connect(angleBlock.previousConnection);

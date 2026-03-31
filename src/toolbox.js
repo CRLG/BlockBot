@@ -744,6 +744,10 @@ export const toolbox = {
           kind: 'block',
           type: 'attendre_condition',
         },
+        {
+          kind: 'block',
+          type: 'info_debutant',
+        },
       ],
     },
     {

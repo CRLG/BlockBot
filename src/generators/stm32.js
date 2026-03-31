@@ -913,6 +913,23 @@ stm32Generator.forBlock['commande_servo_position_vitesse'] = function(block, gen
 
 
 
+// _____________________________________________________________________
+stm32Generator.forBlock['info_debutant'] = function(block, generator) {
+  //Récupération du texte saisi par l'utilisateur (|| '' : garde contre null au premier rendu)
+  const texte = block.getFieldValue('TEXTE') || '';
+  const lignes = texte.split('\n');
+  //Génération d'un commentaire C++ multiligne (ne génère pas d'état)
+  if (lignes.length === 1) {
+    return '    /* ' + lignes[0] + ' */\n';
+  }
+  var code = '    /*\n';
+  lignes.forEach(function(ligne) {
+    code += '     * ' + ligne + '\n';
+  });
+  code += '     */\n';
+  return code;
+};
+
 // ... faire tous les autres blocs que l'on veut mettre à disposition
 
 // ==========================================================================
