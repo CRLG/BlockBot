@@ -8,7 +8,7 @@ const config = {
   output: {
     // Compile the source files into a bundle.
     filename: 'bundle.js',
-    path: path.resolve(__dirname, 'dist'),
+    path: path.resolve(__dirname, 'BlockBot_static'),
     clean: true,
   },
   // Enable webpack-dev-server to get hot refresh of the app.
