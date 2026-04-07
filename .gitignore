@@ -39,3 +39,6 @@
 
 # debug information files
 *.dwo
+
+# Node.js dependencies (installer avec npm install)
+node_modules/
