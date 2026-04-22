@@ -654,6 +654,9 @@ stm32Generator.forBlock['description_debutant'] = function(block, generator) {
   code+= '    switch (m_state)\n';
   code+= '    {\n';
   code += generator.statementToCode(block, 'DESCR');
+  code += '      default:\n';
+  code += '          stop();\n';
+  code += '          break;\n';
   code+= '    }\n';
   code+= '}\n';
 
