@@ -54,6 +54,14 @@ const nom_tache_sm = {
         [
           "SM_Tache10",
           "SM_TACHE10"
+        ],
+        [
+          "SM_TacheAvantMatch",
+          "SM_TACHE_AVANT_MATCH"
+        ],
+        [
+          "SM_TachePostMatch",
+          "SM_TACHE_POST_MATCH"
         ]
       ]
     },
