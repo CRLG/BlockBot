@@ -191,7 +191,7 @@ const aller_vers_etape_si_condition = {
   "previousStatement": null,
   "nextStatement": null,
   "colour": 285,
-  "tooltip": "Aller à une étape si condition",
+  "tooltip": "Aller à une étape si condition, passer à la suite sinon",
   "helpUrl": ""
 };
 

@@ -735,6 +735,7 @@ stm32Generator.forBlock['aller_vers_etape_si_condition'] = function(block, gener
   code +='        if (onEntry()) {\n';
   code +='        }\n';
   code +='        gotoStateIfTrue(STATE_' + etape + ', ' +  condition_vrai_faux + ');\n';
+  code +='        gotoState(STATE_' + String(generator.sm_state_number+1) + ');\n';
   code +='        if (onExit()) { }\n';
   code +='        break;\n';
   generator.sm_state_number = generator.sm_state_number + 1;
