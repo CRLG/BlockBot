@@ -160,6 +160,41 @@ const reboucler_vers_etape = {
   "helpUrl": ""
 };
 
+const aller_vers_etape_si_condition = {
+  "type": "aller_vers_etape_si_condition",
+  "message0": "Aller à l'étape %1 si la condition %2 est %3",
+  "args0": [
+    {
+      "type": "input_value",
+      "name": "ETAPE"
+    },
+    {
+      "type": "input_value",
+      "name": "CONDITION"
+    },
+    {
+      "type": "field_dropdown",
+      "name": "VRAI_FAUX",
+      "options": [
+        [
+          "vrai",
+          "VRAI"
+        ],
+        [
+          "faux",
+          "FAUX"
+        ]
+      ]
+    },
+  ],
+  "inputsInline": true,
+  "previousStatement": null,
+  "nextStatement": null,
+  "colour": 285,
+  "tooltip": "Aller à une étape si condition",
+  "helpUrl": ""
+};
+
 // ___________________________________________
 const deplacement_robot_lineaire = {
   "type": "deplacement_robot_lineaire",
@@ -474,6 +509,7 @@ export const blocks_robot_debutant = Blockly.common.createBlockDefinitionsFromJs
   activer_tache,
   arreter_tache,
   reboucler_vers_etape,
+  aller_vers_etape_si_condition,
   deplacement_robot_lineaire,
   avancer,
   reculer,

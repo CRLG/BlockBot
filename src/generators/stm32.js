@@ -717,6 +717,31 @@ stm32Generator.forBlock['reboucler_vers_etape'] = function(block, generator) {
 };
 
 // _____________________________________________________________________
+stm32Generator.forBlock['aller_vers_etape_si_condition'] = function(block, generator) {
+  const etape = generator.valueToCode(block, 'ETAPE', Order.NONE) || "''";
+  const vrai_faux = block.getFieldValue('VRAI_FAUX');
+  const condition = generator.valueToCode(block, 'CONDITION', Order.ATOMIC);
+
+  var condition_vrai_faux;
+  if (vrai_faux == 'FAUX') {
+    condition_vrai_faux = '!(' + condition + ')';
+  }
+  else {
+    condition_vrai_faux = condition;
+  }
+
+  let code;
+  code = '    case STATE_' + String(generator.sm_state_number) + ' :\n';
+  code +='        if (onEntry()) {\n';
+  code +='        }\n';
+  code +='        gotoStateIfTrue(STATE_' + etape + ', ' +  condition_vrai_faux + ');\n';
+  code +='        if (onExit()) { }\n';
+  code +='        break;\n';
+  generator.sm_state_number = generator.sm_state_number + 1;
+  return code;
+};
+
+// _____________________________________________________________________
 stm32Generator.forBlock['deplacement_robot_lineaire'] = function(block, generator) {
   var mouvement = block.getFieldValue('MOUVEMENT');
   var value = generator.valueToCode(block, 'VALEUR', Order.ATOMIC);

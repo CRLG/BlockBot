@@ -601,6 +601,13 @@ export const toolbox = {
             ETAPE: { shadow: { type: 'math_number', fields: { NUM: 1 } } },
           },
         },
+      {
+          kind: 'block',
+          type: 'aller_vers_etape_si_condition',
+          inputs: {
+            ETAPE: { shadow: { type: 'math_number', fields: { NUM: 1 } } },
+          },
+        },
         {
           kind: 'block',
           type: 'valeur_si_couleur_equipe',
