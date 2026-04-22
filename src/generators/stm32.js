@@ -108,7 +108,7 @@ stm32Generator.scrub_ = function(block, code, opt_thisOnly) {
     if (comment) {
       comment = Blockly.utils.string.wrap(comment,
           this.COMMENT_WRAP - 3);
-      commentCode += this.prefixLines(comment + '\n', '# ');
+      commentCode += this.prefixLines(comment + '\n', '// ');
     }
     // Collect comments for all value arguments.
     // Don't collect comments for nested statements.
@@ -118,7 +118,7 @@ stm32Generator.scrub_ = function(block, code, opt_thisOnly) {
         if (childBlock) {
           var comment = this.allNestedComments(childBlock);
           if (comment) {
-            commentCode += this.prefixLines(comment, '# ');
+            commentCode += this.prefixLines(comment, '// ');
           }
         }
       }
