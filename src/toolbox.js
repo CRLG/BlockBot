@@ -577,47 +577,28 @@ export const toolbox = {
           kind: 'block',
           type: 'description_debutant',
           inputs: {
-            NOM_SM: {
-              shadow: {
-                type: 'nom_tache_sm',
-              },
-            },
+            NOM_SM: { shadow: { type: 'nom_tache_sm' } },
           },
         },
         {
           kind: 'block',
           type: 'activer_tache',
           inputs: {
-            NOM_SM: {
-              shadow: {
-                type: 'nom_tache_sm',
-              },
-            },
+            NOM_SM: { shadow: { type: 'nom_tache_sm' } },
           },
         },
         {
           kind: 'block',
           type: 'arreter_tache',
           inputs: {
-            NOM_SM: {
-              shadow: {
-                type: 'nom_tache_sm',
-              },
-            },
+            NOM_SM: { shadow: { type: 'nom_tache_sm' } },
           },
         },
        {
           kind: 'block',
           type: 'reboucler_vers_etape',
           inputs: {
-            ETAPE: {
-              shadow: {
-                type: 'math_number',
-                fields: {
-                  NUM: 1,
-                },
-              },
-            },
+            ETAPE: { shadow: { type: 'math_number', fields: { NUM: 1 } } },
           },
         },
         {
@@ -628,116 +609,46 @@ export const toolbox = {
           kind: 'block',
           type: 'avancer',
           inputs: {
-            VALEUR: {
-              shadow: {
-                type: 'math_number',
-                fields: {
-                  NUM: 20,
-                },
-              },
-            },
+            VALEUR: { shadow: { type: 'math_number', fields: { NUM: 20 } } },
           },
         },
         {
           kind: 'block',
           type: 'reculer',
           inputs: {
-            VALEUR: {
-              shadow: {
-                type: 'math_number',
-                fields: {
-                  NUM: 20,
-                },
-              },
-            },
+            VALEUR: { shadow: { type: 'math_number', fields: { NUM: 20 } } },
           },
         },
         {
           kind: 'block',
           type: 'set_angle_robot',
           inputs: {
-            VALEUR: {
-              shadow: {
-                type: 'math_number',
-                fields: {
-                  NUM: 90,
-                },
-              },
-            },
+            VALEUR: { shadow: { type: 'math_number', fields: { NUM: 90, } } },
           },
         },
         {
           kind: 'block',
           type: 'commande_moteur_manuelle_duree',
           inputs: {
-            MOT_GAUCHE: {
-              shadow: {
-                type: 'math_number',
-                fields: {
-                  NUM: 0,
-                },
-              },
-            },
-            MOT_DROIT: {
-              shadow: {
-                type: 'math_number',
-                fields: {
-                  NUM: 0,
-                },
-              },
-            },
-            DUREE_MSEC: {
-              shadow: {
-                type: 'math_number',
-                fields: {
-                  NUM: 1000,
-                },
-              },
-            },
+            MOT_GAUCHE: { shadow: { type: 'math_number', fields: { NUM: 0 } } },
+            MOT_DROIT:  { shadow: { type: 'math_number', fields: { NUM: 0 } } },
+            DUREE_MSEC: { shadow: { type: 'math_number', fields: { NUM: 1000 } } },
           },
         },
         {
           kind: 'block',
           type: 'commande_servo_position_vitesse',
           inputs: {
-            INDEX_SERVO: {
-              shadow: {
-                type: 'math_number',
-                fields: {
-                  NUM: 1,
-                },
-              },
-            },
-            POSITION: {
-              shadow: {
-                type: 'math_number',
-                fields: {
-                  NUM: 1500,
-                },
-              },
-            },
-            VITESSE: {
-              shadow: {
-                type: 'math_number',
-                fields: {
-                  NUM: 9999,
-                },
-              },
-            },
+            INDEX_SERVO: { shadow: { type: 'math_number', fields: { NUM: 1, } } },
+            POSITION:    { shadow: { type: 'math_number', fields: { NUM: 1500 } } },
+            VITESSE:     { shadow: { type: 'math_number', fields: { NUM: 9999 } } },
           },
         },
         {
           kind: 'block',
           type: 'attendre',
           inputs: {
-            VALEUR: {
-              shadow: {
-                type: 'math_number',
-                fields: {
-                  NUM: 500,
-                },
-              },
-            },
+            VALEUR: { shadow: { type: 'math_number', fields: { NUM: 500 } } },
           },
         },
         {
