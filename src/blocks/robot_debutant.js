@@ -263,6 +263,45 @@ const reculer = {
 };
 
 // ___________________________________________
+const se_deplacer_en_position = {
+  "type": "se_deplacer_en_position",
+  "message0": "Aller en X=%1 / Y=%2 avec l'angle Teta=%3 %4",
+  "args0": [
+    {
+      "type": "input_value",
+      "name": "X"
+    },
+    {
+      "type": "input_value",
+      "name": "Y"
+    },
+    {
+      "type": "input_value",
+      "name": "TETA"
+    },
+    {
+      "type": "field_dropdown",
+      "name": "UNITES",
+      "options": [
+        [
+          "deg",
+          "DEGRES"
+        ],
+        [
+          "rad",
+          "RADIANS"
+        ]
+      ]
+    }  
+  ],
+  "inputsInline": true,
+  "previousStatement": null,
+  "nextStatement": null,
+  "colour": 1,
+  "tooltip": "Se rendre à la position X, Y avec l'angle Teta",
+  "helpUrl": ""
+};
+// ___________________________________________
 const set_angle_robot = {
   "type": "set_angle_robot",
   "message0": "S'orienter à %1 %2",
@@ -513,6 +552,7 @@ export const blocks_robot_debutant = Blockly.common.createBlockDefinitionsFromJs
   deplacement_robot_lineaire,
   avancer,
   reculer,
+  se_deplacer_en_position,
   set_angle_robot,
   attendre,
   attendre_tirette,

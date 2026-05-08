@@ -825,6 +825,34 @@ stm32Generator.forBlock['set_angle_robot'] = function(block, generator) {
   return code + '\n';
 };
 
+
+// _____________________________________________________________________
+stm32Generator.forBlock['se_deplacer_en_position'] = function(block, generator) {
+  var unites = block.getFieldValue('UNITES');
+  var valueX = generator.valueToCode(block, 'X', Order.ATOMIC);
+  var valueY = generator.valueToCode(block, 'Y', Order.ATOMIC);
+  var valueTETA = generator.valueToCode(block, 'TETA', Order.ATOMIC);
+  let code;
+  
+  var valeur_avec_conversion;
+  if (unites == 'DEGRES') {
+    valeur_avec_conversion = '(M_PI/180)*(' + valueTETA + ')'; 
+  }
+  else {
+    valeur_avec_conversion = valueTETA;
+  }
+  
+  code = '    case STATE_' + String(generator.sm_state_number) + ' :\n';
+  code +='        if (onEntry()) {\n';
+  code +='          Application.m_asservissement.CommandeMouvementXY_TETA(' + valueX + ', ' + valueY + ', ' + valeur_avec_conversion + ');\n';
+  code +='        }\n';
+  code +='        gotoStateIfConvergence(STATE_' + String(generator.sm_state_number+1) + ',5000);\n';
+  code +='        if (onExit()) { }\n';  
+  code +='        break;'; 
+  generator.sm_state_number = generator.sm_state_number + 1;   
+  return code + '\n';
+};
+
 // _____________________________________________________________________
 stm32Generator.forBlock['attendre'] = function(block, generator) {
   var unites = block.getFieldValue('UNITES');

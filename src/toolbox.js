@@ -635,6 +635,15 @@ export const toolbox = {
         },
         {
           kind: 'block',
+          type: 'se_deplacer_en_position',
+          inputs: {
+            X: { shadow: { type: 'math_number', fields: { NUM: 10, } } },
+            Y: { shadow: { type: 'math_number', fields: { NUM: 10, } } },
+            TETA: { shadow: { type: 'math_number', fields: { NUM: 90, } } },
+          },
+        },        
+        {
+          kind: 'block',
           type: 'commande_moteur_manuelle_duree',
           inputs: {
             MOT_GAUCHE: { shadow: { type: 'math_number', fields: { NUM: 0 } } },
