@@ -265,7 +265,7 @@ const reculer = {
 // ___________________________________________
 const set_angle_robot = {
   "type": "set_angle_robot",
-  "message0": "Tourner de %1 %2",
+  "message0": "S'orienter à %1 %2",
   "args0": [
     {
       "type": "input_value",
