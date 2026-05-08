@@ -78,7 +78,7 @@ const nom_tache_sm = {
 // ___________________________________________
 const robot_debutant = {
   "type": "description_debutant",
-  "message0": "Comportement Robot (débutant) %1 %2 %3",
+  "message0": "Tâche Robot (débutant) %1 %2 %3",
   "args0": [
     {
       "type": "input_dummy"
