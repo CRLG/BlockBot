@@ -662,6 +662,18 @@ export const toolbox = {
         },
         {
           kind: 'block',
+          type: 'bras_gauche',
+        },
+        {
+          kind: 'block',
+          type: 'bras_droit',
+        },
+        {
+          kind: 'block',
+          type: 'pince',
+        },
+        {
+          kind: 'block',
           type: 'attendre',
           inputs: {
             VALEUR: { shadow: { type: 'math_number', fields: { NUM: 500 } } },

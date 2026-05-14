@@ -516,6 +516,82 @@ const commande_servo_position_vitesse = {
 };
 
 // ___________________________________________
+// bras_gauche — violet (145)
+// Commande le bras gauche du robot (sortir ou rentrer).
+// Genere CommandePositionVitesse avec les constantes INDEX/POS_BRAS_GAUCHE_*/VITESSE_BRAS_GAUCHE.
+const bras_gauche = {
+  "type": "bras_gauche",
+  "message0": "Bras gauche : %1",
+  "args0": [
+    {
+      "type": "field_dropdown",
+      "name": "ACTION",
+      "options": [
+        ["Sortir", "SORTIR"],
+        ["Rentrer", "RENTRER"]
+      ]
+    }
+  ],
+  "inputsInline": true,
+  "previousStatement": null,
+  "nextStatement": null,
+  "colour": 145,
+  "tooltip": "Commande le bras gauche du robot",
+  "helpUrl": ""
+};
+
+// ___________________________________________
+// bras_droit — violet (145)
+// Commande le bras droit du robot (sortir ou rentrer).
+// Genere CommandePositionVitesse avec les constantes INDEX/POS_BRAS_DROIT_*/VITESSE_BRAS_DROIT.
+const bras_droit = {
+  "type": "bras_droit",
+  "message0": "Bras droit : %1",
+  "args0": [
+    {
+      "type": "field_dropdown",
+      "name": "ACTION",
+      "options": [
+        ["Sortir", "SORTIR"],
+        ["Rentrer", "RENTRER"]
+      ]
+    }
+  ],
+  "inputsInline": true,
+  "previousStatement": null,
+  "nextStatement": null,
+  "colour": 145,
+  "tooltip": "Commande le bras droit du robot",
+  "helpUrl": ""
+};
+
+// ___________________________________________
+// pince — violet (145)
+// Commande la pince avant du robot (ouvrir ou fermer).
+// Genere CommandePositionVitesse avec les constantes INDEX_PINCE/POS_PINCE_*/VITESSE_PINCE.
+const pince = {
+  "type": "pince",
+  "message0": "Pince : %1",
+  "args0": [
+    {
+      "type": "field_dropdown",
+      "name": "ACTION",
+      "options": [
+        ["Ouvrir", "OUVRIR"],
+        ["Saisir", "SAISIR"],
+        ["Fermer", "FERMER"]
+      ]
+    }
+  ],
+  "inputsInline": true,
+  "previousStatement": null,
+  "nextStatement": null,
+  "colour": 145,
+  "tooltip": "Commande la pince avant du robot (2 bras articules)",
+  "helpUrl": ""
+};
+
+// ___________________________________________
 // info_debutant — jaune (60)
 // Bloc de commentaire multiligne en mode débutant.
 // Génère uniquement un commentaire C++ dans le code produit,
@@ -560,6 +636,9 @@ export const blocks_robot_debutant = Blockly.common.createBlockDefinitionsFromJs
   valeur_si_couleur_equipe,
   commande_moteur_manuelle_duree,
   commande_servo_position_vitesse,
+  bras_gauche,
+  bras_droit,
+  pince,
   robot_object,
   info_debutant
  ]);

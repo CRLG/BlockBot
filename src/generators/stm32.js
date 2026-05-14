@@ -971,6 +971,66 @@ stm32Generator.forBlock['commande_servo_position_vitesse'] = function(block, gen
 
 
 // _____________________________________________________________________
+stm32Generator.forBlock['bras_gauche'] = function(block, generator) {
+  var action = block.getFieldValue('ACTION');
+  var pos = (action === 'SORTIR') ? 'SERVO_BRAS_THERMO_GAUCHE_SORTI' : 'SERVO_BRAS_THERMO_GAUCHE_RANGE';
+
+  var code;
+  code = '    case STATE_' + String(generator.sm_state_number) + ' :\n';
+  code +='        if (onEntry()) {\n';
+  code +='          Application.m_servos.CommandePositionVitesse(SERVO_BRAS_THERMO_GAUCHE, ' + pos + ', 255);\n';
+  code +='        }\n';
+  code +='        gotoState(STATE_' + String(generator.sm_state_number+1) + ');\n';
+  code +='        if (onExit()) {\n';
+  code +='        }\n';
+  code +='        break;';
+  generator.sm_state_number = generator.sm_state_number + 1;
+  return code + '\n';
+};
+
+// _____________________________________________________________________
+stm32Generator.forBlock['bras_droit'] = function(block, generator) {
+  var action = block.getFieldValue('ACTION');
+  var pos = (action === 'SORTIR') ? 'SERVO_BRAS_THERMO_DROIT_SORTI' : 'SERVO_BRAS_THERMO_DROIT_RANGE';
+
+  var code;
+  code = '    case STATE_' + String(generator.sm_state_number) + ' :\n';
+  code +='        if (onEntry()) {\n';
+  code +='          Application.m_servos.CommandePositionVitesse(SERVO_BRAS_THERMO_DROIT, ' + pos + ', 255);\n';
+  code +='        }\n';
+  code +='        gotoState(STATE_' + String(generator.sm_state_number+1) + ');\n';
+  code +='        if (onExit()) {\n';
+  code +='        }\n';
+  code +='        break;';
+  generator.sm_state_number = generator.sm_state_number + 1;
+  return code + '\n';
+};
+
+// _____________________________________________________________________
+stm32Generator.forBlock['pince'] = function(block, generator) {
+  var action = block.getFieldValue('ACTION');
+  var pos_gauche = 	  (action === 'OUVRIR') ? 'SERVO_PINCE_GAUCHE_SORTI'
+          		: (action === 'SAISIR') ? 'SERVO_PINCE_GAUCHE_SAISIR'
+          		: 'SERVO_PINCE_GAUCHE_RENTRE';
+  var pos_droite = 	(action === 'OUVRIR') ? 'SERVO_PINCE_DROIT_SORTI'
+          		: (action === 'SAISIR') ? 'SERVO_PINCE_DROIT_SAISIR'
+          		: 'SERVO_PINCE_DROIT_RENTRE';
+
+  var code;
+  code = '    case STATE_' + String(generator.sm_state_number) + ' :\n';
+  code +='        if (onEntry()) {\n';
+  code +='          Application.m_servos.CommandePositionVitesse(SERVO_PINCE_GAUCHE, ' + pos_gauche + ', 255);\n';
+  code +='          Application.m_servos.CommandePositionVitesse(SERVO_PINCE_DROIT, ' + pos_droite + ', 255);\n';
+  code +='        }\n';
+  code +='        gotoState(STATE_' + String(generator.sm_state_number+1) + ');\n';
+  code +='        if (onExit()) {\n';
+  code +='        }\n';
+  code +='        break;';
+  generator.sm_state_number = generator.sm_state_number + 1;
+  return code + '\n';
+};
+
+// _____________________________________________________________________
 stm32Generator.forBlock['info_debutant'] = function(block, generator) {
   //Récupération du texte saisi par l'utilisateur (|| '' : garde contre null au premier rendu)
   const texte = block.getFieldValue('TEXTE') || '';
