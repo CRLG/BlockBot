@@ -515,13 +515,15 @@ function addStatePosFromSimu(data) {
  * Ordre des blocs créés :
  *   1. set_angle_robot(angle, DEGRES)   — orientation vers la cible
  *   2. avancer(distance)               — déplacement vers la cible
- *   3. set_angle_robot(teta, DEGRES)   — retour à l'orientation courante du robot
- *   4. info_debutant                   — commentaire récapitulatif angle/distance/teta
+ *   3. set_angle_robot(teta, DEGRES)   — retour a l'orientation courante du robot
+ *   4. info_debutant                   — commentaire recapitulatif angle/distance/teta + position XY et theta en rad
  *
- * Les deux valeurs d'angle sont toujours transmises en degrés par CBlockBotLab
- * (angle normalisé dans catchDoubleClick, teta converti depuis teta_pos DM).
+ * Les deux valeurs d'angle sont toujours transmises en degres par CBlockBotLab
+ * (angle normalise dans catchDoubleClick, teta converti depuis teta_pos DM).
+ * x, y (position d'arrivee) et teta_rad (orientation en radians) sont lus depuis
+ * le DataCenter et transmis en complement pour enrichir le commentaire.
  *
- * @param {Object} data  { angle: number (deg), distance: number, teta: number (deg) }
+ * @param {Object} data  { angle: number (deg), distance: number, teta: number (deg), x: number, y: number, teta_rad: number (rad) }
  */
 function addPosSimuDebutant(data) {
     var ws = Blockly.getMainWorkspace();
@@ -608,7 +610,10 @@ function addPosSimuDebutant(data) {
         'On s\'est déplacé!\n' +
         '(' + String(Math.round(data.angle * 100) / 100) + ' deg' +
         ' puis ' + String(Math.round(data.distance * 100) / 100) + ' cm' +
-        ' et enfin ' + String(Math.round(data.teta * 100) / 100) + ' deg)',
+        ' et enfin ' + String(Math.round(data.teta * 100) / 100) + ' deg)\n' +
+        'Arrivee: x=' + String(data.x) +
+        ' y=' + String(data.y) +
+        ' theta=' + String(Math.round(data.teta_rad * 1000) / 1000) + ' rad',
         'TEXTE'
     );
     infoBlock.initSvg();
