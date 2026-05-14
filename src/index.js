@@ -507,21 +507,13 @@ function addStatePosFromSimu(data) {
 //########################################################################
 /**
  * FONCTION POUR LABOTBOX — SimuBot (mode débutant)
- * Crée un triplet (set_angle_robot angle + avancer distance + set_angle_robot teta_pos)
- * depuis les paramètres transmis par CSimuBot via la commande "add_pos_simu_debutant",
- * et le connecte au dernier bloc libre de la chaîne DESCR du bloc description_debutant.
+ * Crée un bloc se_deplacer_en_position depuis les paramètres transmis par CSimuBot
+ * via la commande "add_pos_simu_debutant", et le connecte au dernier bloc libre
+ * de la chaîne DESCR du bloc description_debutant.
  * Si aucun bloc description_debutant n'existe, il est créé et positionné en haut à gauche.
  *
- * Ordre des blocs créés :
- *   1. set_angle_robot(angle, DEGRES)   — orientation vers la cible
- *   2. avancer(distance)               — déplacement vers la cible
- *   3. set_angle_robot(teta, DEGRES)   — retour a l'orientation courante du robot
- *   4. info_debutant                   — commentaire recapitulatif angle/distance/teta + position XY et theta en rad
- *
- * Les deux valeurs d'angle sont toujours transmises en degres par CBlockBotLab
- * (angle normalise dans catchDoubleClick, teta converti depuis teta_pos DM).
- * x, y (position d'arrivee) et teta_rad (orientation en radians) sont lus depuis
- * le DataCenter et transmis en complement pour enrichir le commentaire.
+ * Seuls x, y (position d'arrivee) et teta (orientation finale en degres) sont utilises.
+ * Les champs angle, distance et teta_rad sont transmis par le C++ mais ignores ici.
  *
  * @param {Object} data  { angle: number (deg), distance: number, teta: number (deg), x: number, y: number, teta_rad: number (rad) }
  */
@@ -563,80 +555,47 @@ function addPosSimuDebutant(data) {
         }
     }
 
-    // ── 2. Bloc set_angle_robot (angle objectif de déplacement) ─────────────
-    var angleBlock = ws.newBlock('set_angle_robot');
-    var numAngle = ws.newBlock('math_number');
-    numAngle.setFieldValue(String(Math.round(data.angle * 100) / 100), 'NUM');
-    numAngle.initSvg();
-    numAngle.render();
-    var angleValInput = angleBlock.getInput('VALEUR');
-    if (angleValInput && angleValInput.connection && numAngle.outputConnection) {
-        angleValInput.connection.connect(numAngle.outputConnection);
-    }
-    angleBlock.setFieldValue('DEGRES', 'UNITES');
-    angleBlock.initSvg();
-    angleBlock.render();
+    // ── 2. Bloc se_deplacer_en_position (X, Y, Teta en degrés) ──────────────
+    var deplacerBlock = ws.newBlock('se_deplacer_en_position');
 
-    // ── 3. Bloc avancer (distance objectif de déplacement) ────────────────
-    var avancerBlock = ws.newBlock('avancer');
-    var numDist = ws.newBlock('math_number');
-    numDist.setFieldValue(String(Math.round(data.distance * 100) / 100), 'NUM');
-    numDist.initSvg();
-    numDist.render();
-    var distValInput = avancerBlock.getInput('VALEUR');
-    if (distValInput && distValInput.connection && numDist.outputConnection) {
-        distValInput.connection.connect(numDist.outputConnection);
+    var numX = ws.newBlock('math_number');
+    numX.setFieldValue(String(Math.round(data.x * 100) / 100), 'NUM');
+    numX.initSvg();
+    numX.render();
+    var xInput = deplacerBlock.getInput('X');
+    if (xInput && xInput.connection && numX.outputConnection) {
+        xInput.connection.connect(numX.outputConnection);
     }
-    avancerBlock.initSvg();
-    avancerBlock.render();
 
-    // ── 4. Bloc set_angle_robot (retour à l'orientation courante teta_pos) ──────────
-    var retourBlock = ws.newBlock('set_angle_robot');
+    var numY = ws.newBlock('math_number');
+    numY.setFieldValue(String(Math.round(data.y * 100) / 100), 'NUM');
+    numY.initSvg();
+    numY.render();
+    var yInput = deplacerBlock.getInput('Y');
+    if (yInput && yInput.connection && numY.outputConnection) {
+        yInput.connection.connect(numY.outputConnection);
+    }
+
     var numTeta = ws.newBlock('math_number');
     numTeta.setFieldValue(String(Math.round(data.teta * 100) / 100), 'NUM');
     numTeta.initSvg();
     numTeta.render();
-    var tetaValInput = retourBlock.getInput('VALEUR');
-    if (tetaValInput && tetaValInput.connection && numTeta.outputConnection) {
-        tetaValInput.connection.connect(numTeta.outputConnection);
-    }
-    retourBlock.setFieldValue('DEGRES', 'UNITES');
-    retourBlock.initSvg();
-    retourBlock.render();
-
-    // ── 5. Bloc info_debutant (commentaire récapitulatif du déplacement) ─────────────
-    var infoBlock = ws.newBlock('info_debutant');
-    infoBlock.setFieldValue(
-        'On s\'est déplacé!\n' +
-        '(' + String(Math.round(data.angle * 100) / 100) + ' deg' +
-        ' puis ' + String(Math.round(data.distance * 100) / 100) + ' cm' +
-        ' et enfin ' + String(Math.round(data.teta * 100) / 100) + ' deg)\n' +
-        'Arrivee: x=' + String(data.x) +
-        ' y=' + String(data.y) +
-        ' theta=' + String(Math.round(data.teta_rad * 1000) / 1000) + ' rad',
-        'TEXTE'
-    );
-    infoBlock.initSvg();
-    infoBlock.render();
-
-    // ── 6. Chaîner les 4 blocs entre eux ────────────────────────────────────────────────
-    if (angleBlock.nextConnection && avancerBlock.previousConnection) {
-        angleBlock.nextConnection.connect(avancerBlock.previousConnection);
-    }
-    if (avancerBlock.nextConnection && retourBlock.previousConnection) {
-        avancerBlock.nextConnection.connect(retourBlock.previousConnection);
-    }
-    if (retourBlock.nextConnection && infoBlock.previousConnection) {
-        retourBlock.nextConnection.connect(infoBlock.previousConnection);
+    var tetaInput = deplacerBlock.getInput('TETA');
+    if (tetaInput && tetaInput.connection && numTeta.outputConnection) {
+        tetaInput.connection.connect(numTeta.outputConnection);
     }
 
-    // ── 7. Connecter au dernier bloc de la chaîne DESCR ou à DESCR directement ─────────
-    if (lastInChain && lastInChain.nextConnection && angleBlock.previousConnection) {
+    deplacerBlock.setFieldValue('DEGRES', 'UNITES');
+    deplacerBlock.initSvg();
+    deplacerBlock.render();
+
+    // ── 3. Connecter au dernier bloc de la chaîne DESCR ou à DESCR directement ─────────
+    if (lastInChain && lastInChain.nextConnection && deplacerBlock.previousConnection) {
         // Cas 1 : des blocs existent déjà dans DESCR — connecter en fin de chaîne
-        lastInChain.nextConnection.connect(angleBlock.previousConnection);
-    } else if (descrInput && descrInput.connection && angleBlock.previousConnection) {
+        lastInChain.nextConnection.connect(deplacerBlock.previousConnection);
+    } else if (descrInput && descrInput.connection && deplacerBlock.previousConnection) {
         // Cas 2 : DESCR est vide — connecter directement à l'entrée DESCR
-        descrInput.connection.connect(angleBlock.previousConnection);
+        descrInput.connection.connect(deplacerBlock.previousConnection);
     }
 
     ws.render();
