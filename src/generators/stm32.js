@@ -832,6 +832,7 @@ stm32Generator.forBlock['se_deplacer_en_position'] = function(block, generator) 
   var valueX = generator.valueToCode(block, 'X', Order.ATOMIC);
   var valueY = generator.valueToCode(block, 'Y', Order.ATOMIC);
   var valueTETA = generator.valueToCode(block, 'TETA', Order.ATOMIC);
+  const sym = block.getFieldValue('SYM');
   let code;
   
   var valeur_avec_conversion;
@@ -844,7 +845,8 @@ stm32Generator.forBlock['se_deplacer_en_position'] = function(block, generator) 
   
   code = '    case STATE_' + String(generator.sm_state_number) + ' :\n';
   code +='        if (onEntry()) {\n';
-  code +='          Application.m_asservissement.CommandeMouvementXY_TETA(' + valueX + ', ' + valueY + ', ' + valeur_avec_conversion + ');\n';
+  code += ((sym==='TRUE')?'           outputs()->CommandeMouvementXY_TETA_sym(':'           Application.m_asservissement.CommandeMouvementXY_TETA(') + valueX + ' , ' + valueY + ' , ' + valeur_avec_conversion + ');\n';
+
   code +='        }\n';
   code +='        gotoStateIfConvergence(STATE_' + String(generator.sm_state_number+1) + ',5000);\n';
   code +='        if (onExit()) { }\n';  

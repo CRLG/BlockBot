@@ -265,7 +265,7 @@ const reculer = {
 // ___________________________________________
 const se_deplacer_en_position = {
   "type": "se_deplacer_en_position",
-  "message0": "Aller en X=%1 / Y=%2 avec l'angle Teta=%3 %4",
+  "message0": "Aller en X=%1 / Y=%2 avec l'angle Teta=%3 %4 %5",
   "args0": [
     {
       "type": "input_value",
@@ -292,7 +292,8 @@ const se_deplacer_en_position = {
           "RADIANS"
         ]
       ]
-    }  
+    },
+    { "type": "field_checkbox", "name": "SYM", "checked": false }
   ],
   "inputsInline": true,
   "previousStatement": null,
